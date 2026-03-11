@@ -1,0 +1,429 @@
+.app {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem;
+  background: #1a1a2e;
+  color: #eee;
+  z-index: 1001;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.map-container {
+  position: fixed;
+  top: 56px; /* ヘッダー高さ */
+  left: 0;
+  right: 0;
+  bottom: 160px; /* タイムラインコントロール分 */
+}
+
+.timeline-map {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem;
+  background: #16213e;
+  color: #eee;
+  border-top: 1px solid #0f3460;
+  z-index: 1001;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.current-date {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.station-count {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* タイムライン：この日に起きたこと／直近・次回のイベント */
+.timeline-events-info {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.timeline-events-label {
+  color: #94a3b8;
+  margin-right: 0.35em;
+}
+
+.timeline-events-on-date .timeline-events-list,
+.timeline-events-context .timeline-events-context-detail {
+  display: inline;
+}
+
+.timeline-event-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.4em;
+  margin-bottom: 0.2em;
+}
+
+.timeline-event-badge.event-open {
+  background: rgba(42, 157, 143, 0.4);
+  color: #2ec4b6;
+}
+
+.timeline-event-badge.event-rename {
+  background: rgba(69, 123, 157, 0.4);
+  color: #74c0fc;
+}
+
+.timeline-event-badge.event-close {
+  background: rgba(231, 57, 70, 0.3);
+  color: #f87171;
+}
+
+.timeline-events-sep {
+  margin: 0 0.5em;
+  color: #64748b;
+}
+
+/* その年の日本の歴史的出来事 */
+.timeline-japanese-history {
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.timeline-japanese-history-list {
+  display: inline;
+}
+
+.timeline-japanese-history-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  margin-right: 0.35em;
+  margin-bottom: 0.2em;
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.timeline-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timeline-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.timeline-speed-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.timeline-speed-select {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  background: #0f3460;
+  color: #e2e8f0;
+  border: 1px solid #1e3a5f;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.timeline-speed-select:hover {
+  background: #1e3a5f;
+}
+
+.timeline-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #0f3460;
+  border-radius: 3px;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #e63946;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #e63946;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.play-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #e63946;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-button:hover {
+  background: #f0505e;
+}
+
+.play-button.playing {
+  background: #457b9d;
+}
+
+.map-wrapper {
+  flex: 1;
+  min-height: 300px;
+  width: 100%;
+  position: relative;
+}
+
+.map-wrapper .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 300px;
+}
+
+/* 駅マーカー：ドット＋駅名ラベル */
+.station-marker-wrapper {
+  background: none !important;
+  border: none !important;
+}
+
+.station-marker-with-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.station-marker-with-label .station-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  background: #e63946;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.station-marker-with-label .station-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 1px 1px 2px rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+}
+
+/* 開業した駅：駅名＋開業バッジ */
+.station-open-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.open-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  background: linear-gradient(135deg, #2a9d8f, #264653);
+  color: white;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* 改称した駅：旧名→新名＋改称バッジ */
+.station-rename-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.station-rename-label .old-name {
+  color: #64748b;
+  text-decoration: line-through;
+  font-size: 11px;
+}
+
+.station-rename-label .rename-arrow {
+  color: #457b9d;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.station-rename-label .new-name {
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.rename-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  background: linear-gradient(135deg, #457b9d, #1d3557);
+  color: white;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* 改称時：ポン！と目立つアニメーション */
+.station-marker-with-label.station-just-renamed {
+  animation: stationRenamePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes stationRenamePop {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* 誕生した駅：ポン！と出現するアニメーション */
+.station-marker-with-label.station-pop-in {
+  animation: stationPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.station-marker-with-label.station-pop-in .station-dot {
+  animation: dotPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+@keyframes stationPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dotPopIn {
+  0% {
+    transform: scale(0);
+    box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(230, 57, 70, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ポップアップ：駅の歴史一覧 */
+.popup-station {
+  min-width: 200px;
+}
+
+.popup-station-name {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.popup-station-history-title {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.popup-station-history-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.popup-history-item {
+  margin-bottom: 0.2rem;
+}
+
+.popup-history-date {
+  display: inline-block;
+  min-width: 5.5em;
+  color: #64748b;
+  margin-right: 0.25em;
+}
+
+.popup-history-date-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: #64748b;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.popup-history-date-btn:hover {
+  color: #0ea5e9;
+}
+
+.popup-history-item.history-open .popup-history-label {
+  color: #0d9488;
+}
+
+.popup-history-item.history-rename .popup-history-label {
+  color: #0369a1;
+}
+
+.popup-history-item.history-close .popup-history-label {
+  color: #dc2626;
+}

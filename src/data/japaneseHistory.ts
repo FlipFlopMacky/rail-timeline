@@ -1,0 +1,60 @@
+/**
+ * 日本の歴史的出来事（年ごと）
+ * 東武東上線のタイムラインと合わせて表示する全国的な出来事
+ */
+export interface JapaneseHistoryEvent {
+  year: number;
+  events: string[];
+}
+
+export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
+  { year: 1914, events: ['第一次世界大戦勃発（7月）', '大正政変'] },
+  { year: 1915, events: ['二十一か条の要求', '国定教科書第2期'] },
+  { year: 1916, events: ['寺内内閣成立'] },
+  { year: 1918, events: ['米騒動', 'シベリア出兵', '原敬内閣（初の政党内閣）'] },
+  { year: 1922, events: ['ワシントン海軍軍縮条約', '日本共産党結成', 'ソ連建国'] },
+  { year: 1923, events: ['関東大震災（9月1日）', '虎の門事件'] },
+  { year: 1925, events: ['普通選挙法成立', '治安維持法公布', '日ソ基本条約'] },
+  { year: 1926, events: ['大正天皇崩御、昭和時代開始（12月25日）'] },
+  { year: 1930, events: ['ロンドン海軍軍縮条約', '濱口首相狙撃'] },
+  { year: 1931, events: ['満州事変勃発'] },
+  { year: 1932, events: ['五・一五事件', '満州国建国', '国際連盟脱退（1933年）'] },
+  { year: 1933, events: ['日本、国際連盟脱退'] },
+  { year: 1934, events: ['室戸台風'] },
+  { year: 1935, events: ['天皇機関説問題'] },
+  { year: 1936, events: ['二・二六事件'] },
+  { year: 1937, events: ['盧溝橋事件、日中戦争全面化'] },
+  { year: 1940, events: ['日独伊三国同盟', '大政翼賛会発足'] },
+  { year: 1941, events: ['太平洋戦争開戦（12月8日）'] },
+  { year: 1945, events: ['終戦（8月15日）', 'ポツダム宣言受諾'] },
+  { year: 1946, events: ['日本国憲法公布'] },
+  { year: 1947, events: ['日本国憲法施行', '教育基本法施行'] },
+  { year: 1951, events: ['サンフランシスコ平和条約調印', '日米安全保障条約'] },
+  { year: 1954, events: ['自衛隊発足', 'ビキニ環礁水爆実験'] },
+  { year: 1956, events: ['日ソ共同宣言、国連加盟'] },
+  { year: 1959, events: ['皇太子ご成婚（美智子さま）'] },
+  { year: 1964, events: ['東京オリンピック開催', '東海道新幹線開業'] },
+  { year: 1970, events: ['大阪万博開催', 'よど号ハイジャック事件'] },
+  { year: 1971, events: ['ニクソン・ショック', '沖縄返還協定調印'] },
+  { year: 1972, events: ['日中共同声明', '沖縄返還'] },
+  { year: 1973, events: ['第一次オイルショック'] },
+  { year: 1974, events: ['田中角栄首相退陣'] },
+  { year: 1977, events: ['日航機ハイジャック事件（ダッカ）'] },
+  { year: 1979, events: ['第二次オイルショック'] },
+  { year: 1985, events: ['プラザ合意', '日航123便墜落事故'] },
+  { year: 1989, events: ['昭和天皇崩御、平成時代開始（1月7日）'] },
+  { year: 1993, events: ['細川連立政権発足', 'Jリーグ開幕'] },
+  { year: 1995, events: ['阪神・淡路大震災', 'オウム真理教事件'] },
+  { year: 1998, events: ['長野冬季オリンピック'] },
+  { year: 2002, events: ['サッカーW杯日韓大会'] },
+  { year: 2011, events: ['東日本大震災（3月11日）', '東京電力福島第一原発事故'] },
+  { year: 2019, events: ['令和改元（5月1日）'] },
+  { year: 2020, events: ['東京オリンピック1年延期', '新型コロナ感染拡大'] },
+  { year: 2021, events: ['東京2020オリンピック・パラリンピック開催'] },
+];
+
+/** 指定年の日本の歴史的出来事を取得 */
+export function getJapaneseHistoryForYear(year: number): string[] {
+  const entry = japaneseHistoryEvents.find((e) => e.year === year);
+  return entry?.events ?? [];
+}
