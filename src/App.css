@@ -13,12 +13,43 @@
   background: #1a1a2e;
   color: #eee;
   z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+.route-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.route-selector label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.route-select {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  background: #0f3460;
+  color: #e2e8f0;
+  border: 1px solid #1e3a5f;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 220px;
+}
+
+.route-select:hover {
+  background: #1e3a5f;
 }
 
 .map-container {

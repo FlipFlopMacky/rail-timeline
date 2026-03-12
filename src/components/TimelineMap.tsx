@@ -2,18 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import {
-  getStationsAtDate,
-  getStationOpenDate,
-  getRenameEventOnDate,
-  getStationFullHistory,
-  getEventsOnDate,
-  getNearestEvents,
-  stationEvents,
-  type StationEvent,
-  MIN_DATE,
-  MAX_DATE,
-} from '../data/stationHistory';
+import type { StationEvent, StationHistoryApi } from '../data/types';
 import { getJapaneseHistoryForYear } from '../data/japaneseHistory';
 
 function esc(s: string) {
@@ -62,16 +51,16 @@ function createStationIcon(
   });
 }
 
-function dateToSliderValue(dateStr: string): number {
-  const min = new Date(MIN_DATE).getTime();
-  const max = new Date(MAX_DATE).getTime();
+function dateToSliderValue(dateStr: string, minDate: string, maxDate: string): number {
+  const min = new Date(minDate).getTime();
+  const max = new Date(maxDate).getTime();
   const current = new Date(dateStr).getTime();
   return ((current - min) / (max - min)) * 100;
 }
 
-function sliderValueToDate(value: number): string {
-  const min = new Date(MIN_DATE).getTime();
-  const max = new Date(MAX_DATE).getTime();
+function sliderValueToDate(value: number, minDate: string, maxDate: string): string {
+  const min = new Date(minDate).getTime();
+  const max = new Date(maxDate).getTime();
   const date = new Date(min + (value / 100) * (max - min));
   return date.toISOString().slice(0, 10);
 }
@@ -134,22 +123,33 @@ function MapBounds({
   return null;
 }
 
-export function TimelineMap() {
+interface TimelineMapProps {
+  routeApi: StationHistoryApi;
+}
+
+export function TimelineMap({ routeApi }: TimelineMapProps) {
+  const { stationEvents, MIN_DATE, MAX_DATE } = routeApi;
+
   const eventDates = useMemo(() => {
     const dates = [...new Set(stationEvents.map((e) => e.date))].sort();
     return dates;
-  }, []);
+  }, [stationEvents]);
 
   const [currentDate, setCurrentDate] = useState(MIN_DATE);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
+
+  useEffect(() => {
+    setCurrentDate(MIN_DATE);
+    setSliderValue(0);
+  }, [routeApi, MIN_DATE]);
   const [playSpeedMs, setPlaySpeedMs] = useState(1200);
 
-  const stations = useMemo(() => getStationsAtDate(currentDate), [currentDate]);
-  const eventsOnDate = useMemo(() => getEventsOnDate(currentDate), [currentDate]);
+  const stations = useMemo(() => routeApi.getStationsAtDate(currentDate), [routeApi, currentDate]);
+  const eventsOnDate = useMemo(() => routeApi.getEventsOnDate(currentDate), [routeApi, currentDate]);
   const { last: lastEvent, next: nextEvent } = useMemo(
-    () => getNearestEvents(currentDate),
-    [currentDate]
+    () => routeApi.getNearestEvents(currentDate),
+    [routeApi, currentDate]
   );
 
   const routePositions = useMemo(
@@ -160,9 +160,9 @@ export function TimelineMap() {
   const focusPositions = useMemo(
     () =>
       stations
-        .filter((s) => getStationOpenDate(s.lat, s.lon) === currentDate)
+        .filter((s) => routeApi.getStationOpenDate(s.lat, s.lon) === currentDate)
         .map((s) => [s.lat, s.lon] as [number, number]),
-    [stations, currentDate]
+    [routeApi, stations, currentDate]
   );
 
   const currentYear = useMemo(() => new Date(currentDate).getFullYear(), [currentDate]);
@@ -175,11 +175,11 @@ export function TimelineMap() {
     const nextIdx = eventDates.findIndex((d) => d > currentDate);
     if (nextIdx >= 0) {
       setCurrentDate(eventDates[nextIdx]);
-      setSliderValue(dateToSliderValue(eventDates[nextIdx]));
+      setSliderValue(dateToSliderValue(eventDates[nextIdx], MIN_DATE, MAX_DATE));
     } else {
       setIsPlaying(false);
     }
-  }, [currentDate, eventDates]);
+  }, [currentDate, eventDates, MIN_DATE, MAX_DATE]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -190,12 +190,12 @@ export function TimelineMap() {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
     setSliderValue(value);
-    setCurrentDate(sliderValueToDate(value));
+    setCurrentDate(sliderValueToDate(value, MIN_DATE, MAX_DATE));
   };
 
   const handleDateClick = (dateStr: string) => {
     setCurrentDate(dateStr);
-    setSliderValue(dateToSliderValue(dateStr));
+    setSliderValue(dateToSliderValue(dateStr, MIN_DATE, MAX_DATE));
     if (isPlaying) setIsPlaying(false);
   };
 
@@ -312,10 +312,10 @@ export function TimelineMap() {
             pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
           />
           {stations.map((station) => {
-            const stationHistory = getStationFullHistory(station.lat, station.lon);
-            const openDate = getStationOpenDate(station.lat, station.lon);
+            const stationHistory = routeApi.getStationFullHistory(station.lat, station.lon);
+            const openDate = routeApi.getStationOpenDate(station.lat, station.lon);
             const isJustBorn = openDate === currentDate;
-            const renameOnDate = getRenameEventOnDate(station.lat, station.lon, currentDate);
+            const renameOnDate = routeApi.getRenameEventOnDate(station.lat, station.lon, currentDate);
             return (
               <Marker
                 key={`${station.lat}-${station.lon}-${station.name}`}

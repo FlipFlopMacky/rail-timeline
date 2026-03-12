@@ -3,16 +3,9 @@
  * 池袋→寄居の順で並び順を定義
  * 緯度経度は実際の駅位置（rosenzu.net等を参照）
  */
-export interface StationEvent {
-  date: string; // YYYY-MM-DD
-  type: 'open' | 'close' | 'rename';
-  stationName: string;
-  previousName?: string;
-  lat: number;
-  lon: number;
-  order: number;
-}
+import type { StationEvent } from './types';
 
+export type { StationEvent };
 export const stationEvents: StationEvent[] = [
   { date: '1914-05-01', type: 'open', stationName: '池袋', lat: 35.728926, lon: 139.71038, order: 1 },
   { date: '1934-05-01', type: 'open', stationName: '北池袋', lat: 35.741283, lon: 139.716749, order: 2 },

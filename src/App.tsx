@@ -1,14 +1,31 @@
+import { useState } from 'react';
 import './App.css';
 import { TimelineMap } from './components/TimelineMap';
+import { ROUTES, type RouteId } from './data/routes';
 
 function App() {
+  const [routeId, setRouteId] = useState<RouteId>('tojo');
+  const { api } = ROUTES[routeId];
+
   return (
     <div className="app">
       <header className="header">
-        <h1>東武東上線 駅の歴史</h1>
+        <h1>駅の歴史 タイムライン</h1>
+        <div className="route-selector">
+          <label htmlFor="route-select">路線：</label>
+          <select
+            id="route-select"
+            value={routeId}
+            onChange={(e) => setRouteId(e.target.value as RouteId)}
+            className="route-select"
+          >
+            <option value="tojo">東武東上線（池袋～寄居）</option>
+            <option value="chichibu">秩父鉄道秩父本線（羽生～三峰口）</option>
+          </select>
+        </div>
       </header>
       <main className="map-container">
-        <TimelineMap />
+        <TimelineMap routeApi={api} />
       </main>
     </div>
   );
