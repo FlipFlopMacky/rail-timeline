@@ -23,6 +23,7 @@ function App() {
             <option value="tojo">東武東上線（池袋～寄居）</option>
             <option value="chichibu">秩父鉄道秩父本線（羽生～三峰口）</option>
             <option value="skytree">東武スカイツリーライン（浅草～東武動物公園）</option>
+            <option value="musashino">JR武蔵野線（府中本町～西船橋）</option>
           </select>
         </div>
       </header>

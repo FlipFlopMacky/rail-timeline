@@ -14,13 +14,19 @@ import {
   SKYTREE_MIN_DATE,
   SKYTREE_MAX_DATE,
 } from './skytreeStationHistory';
+import {
+  musashinoStationEvents,
+  MUSASHINO_MIN_DATE,
+  MUSASHINO_MAX_DATE,
+} from './musashinoStationHistory';
 
 /** 全路線の駅イベントをマージ（orderは路線ごとにオフセットして重複を回避） */
-const ORDER_OFFSET = { tojo: 0, chichibu: 1000, skytree: 2000 };
+const ORDER_OFFSET = { tojo: 0, chichibu: 1000, skytree: 2000, musashino: 3000 };
 const allStationEvents: StationEvent[] = [
   ...stationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tojo })),
   ...chichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.chichibu })),
   ...skytreeStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.skytree })),
+  ...musashinoStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.musashino })),
 ];
 
 const ALL_MIN_DATE = SKYTREE_MIN_DATE; // 1899年が最古
@@ -36,6 +42,11 @@ const skytreeApi: StationHistoryApi = createStationHistoryApi(
   skytreeStationEvents,
   SKYTREE_MIN_DATE,
   SKYTREE_MAX_DATE
+);
+const musashinoApi: StationHistoryApi = createStationHistoryApi(
+  musashinoStationEvents,
+  MUSASHINO_MIN_DATE,
+  MUSASHINO_MAX_DATE
 );
 const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
 
@@ -80,11 +91,21 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: skytreeApi,
   },
+  musashino: {
+    data: {
+      id: 'musashino',
+      name: 'JR武蔵野線（府中本町～西船橋）',
+      stationEvents: musashinoStationEvents,
+      minDate: MUSASHINO_MIN_DATE,
+      maxDate: MUSASHINO_MAX_DATE,
+    },
+    api: musashinoApi,
+  },
 };
 
 export type RouteId = keyof typeof ROUTES;
 
-export const ROUTE_IDS: RouteId[] = ['all', 'tojo', 'chichibu', 'skytree'];
+export const ROUTE_IDS: RouteId[] = ['all', 'tojo', 'chichibu', 'skytree', 'musashino'];
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
-export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [tojoApi, chichibuApi, skytreeApi];
+export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [tojoApi, chichibuApi, skytreeApi, musashinoApi];
