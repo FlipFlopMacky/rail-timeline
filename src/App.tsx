@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import './App.css';
 import { TimelineMap } from './components/TimelineMap';
-import { ROUTES, type RouteId } from './data/routes';
+import { ROUTES, INDIVIDUAL_ROUTE_APIS, type RouteId } from './data/routes';
 
 function App() {
-  const [routeId, setRouteId] = useState<RouteId>('tojo');
+  const [routeId, setRouteId] = useState<RouteId>('all');
   const { api } = ROUTES[routeId];
 
   return (
@@ -19,13 +19,18 @@ function App() {
             onChange={(e) => setRouteId(e.target.value as RouteId)}
             className="route-select"
           >
+            <option value="all">全路線</option>
             <option value="tojo">東武東上線（池袋～寄居）</option>
             <option value="chichibu">秩父鉄道秩父本線（羽生～三峰口）</option>
+            <option value="skytree">東武スカイツリーライン（浅草～東武動物公園）</option>
           </select>
         </div>
       </header>
       <main className="map-container">
-        <TimelineMap routeApi={api} />
+        <TimelineMap
+          routeApi={api}
+          routeApisForPolylines={routeId === 'all' ? INDIVIDUAL_ROUTE_APIS : undefined}
+        />
       </main>
     </div>
   );

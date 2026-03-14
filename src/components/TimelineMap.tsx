@@ -79,12 +79,25 @@ function formatDateShort(dateStr: string): string {
 
 function formatDateDisplay(dateStr: string): string {
   const date = new Date(dateStr);
-  const era = date.getFullYear() < 1926 ? '大正' : date.getFullYear() < 1989 ? '昭和' : date.getFullYear() < 2019 ? '平成' : '令和';
+  const y = date.getFullYear();
+  let era: string;
   let year: number;
-  if (date.getFullYear() < 1926) year = date.getFullYear() - 1911;
-  else if (date.getFullYear() < 1989) year = date.getFullYear() - 1925;
-  else if (date.getFullYear() < 2019) year = date.getFullYear() - 1988;
-  else year = date.getFullYear() - 2018;
+  if (y < 1912) {
+    era = '明治';
+    year = y - 1867;
+  } else if (y < 1926) {
+    era = '大正';
+    year = y - 1911;
+  } else if (y < 1989) {
+    era = '昭和';
+    year = y - 1925;
+  } else if (y < 2019) {
+    era = '平成';
+    year = y - 1988;
+  } else {
+    era = '令和';
+    year = y - 2018;
+  }
   return `${dateStr} (${era}${year}年)`;
 }
 
@@ -125,9 +138,11 @@ function MapBounds({
 
 interface TimelineMapProps {
   routeApi: StationHistoryApi;
+  /** 全路線モードで各路線ごとに線を描画する場合のAPI配列 */
+  routeApisForPolylines?: StationHistoryApi[];
 }
 
-export function TimelineMap({ routeApi }: TimelineMapProps) {
+export function TimelineMap({ routeApi, routeApisForPolylines }: TimelineMapProps) {
   const { stationEvents, MIN_DATE, MAX_DATE } = routeApi;
 
   const eventDates = useMemo(() => {
@@ -156,6 +171,16 @@ export function TimelineMap({ routeApi }: TimelineMapProps) {
     () => stations.map((s) => [s.lat, s.lon] as [number, number]),
     [stations]
   );
+
+  /** 各路線ごとのポリライン用座標（全路線モード時は各路線別、通常はnullで単一のroutePositionsを使用） */
+  const polylinePositionsList = useMemo(() => {
+    if (routeApisForPolylines) {
+      return routeApisForPolylines.map((api) =>
+        api.getStationsAtDate(currentDate).map((s) => [s.lat, s.lon] as [number, number])
+      );
+    }
+    return null;
+  }, [routeApisForPolylines, currentDate]);
 
   const focusPositions = useMemo(
     () =>
@@ -307,10 +332,22 @@ export function TimelineMap({ routeApi }: TimelineMapProps) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MapBounds positions={routePositions} focusPositions={focusPositions} />
-          <Polyline
-            positions={routePositions}
-            pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
-          />
+          {polylinePositionsList ? (
+            polylinePositionsList.map((positions, i) =>
+              positions.length >= 2 ? (
+                <Polyline
+                  key={i}
+                  positions={positions}
+                  pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
+                />
+              ) : null
+            )
+          ) : (
+            <Polyline
+              positions={routePositions}
+              pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
+            />
+          )}
           {stations.map((station) => {
             const stationHistory = routeApi.getStationFullHistory(station.lat, station.lon);
             const openDate = routeApi.getStationOpenDate(station.lat, station.lon);
