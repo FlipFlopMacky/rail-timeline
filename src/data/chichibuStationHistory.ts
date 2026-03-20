@@ -2,6 +2,7 @@
  * 秩父鉄道秩父本線の駅履歴データ
  * 羽生→三峰口の順で並び順を定義
  * 緯度経度は train.teraren.com（駅の実位置）を参照
+ * 
  */
 import type { StationEvent } from './types';
 
