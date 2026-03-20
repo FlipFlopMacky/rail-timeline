@@ -19,14 +19,33 @@ import {
   MUSASHINO_MIN_DATE,
   MUSASHINO_MAX_DATE,
 } from './musashinoStationHistory';
+import {
+  seibuIkebukuroStationEvents,
+  SEIBU_IKEBUKURO_MIN_DATE,
+  SEIBU_IKEBUKURO_MAX_DATE,
+} from './seibuIkebukuroStationHistory';
+import {
+  seibuChichibuStationEvents,
+  SEIBU_CHICHIBU_MIN_DATE,
+  SEIBU_CHICHIBU_MAX_DATE,
+} from './seibuChichibuStationHistory';
 
 /** 全路線の駅イベントをマージ（orderは路線ごとにオフセットして重複を回避） */
-const ORDER_OFFSET = { tojo: 0, chichibu: 1000, skytree: 2000, musashino: 3000 };
+const ORDER_OFFSET = {
+  tojo: 0,
+  chichibu: 1000,
+  skytree: 2000,
+  musashino: 3000,
+  seibuIkebukuro: 4000,
+  seibuChichibu: 5000,
+};
 const allStationEvents: StationEvent[] = [
   ...stationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tojo })),
   ...chichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.chichibu })),
   ...skytreeStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.skytree })),
   ...musashinoStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.musashino })),
+  ...seibuIkebukuroStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuIkebukuro })),
+  ...seibuChichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuChichibu })),
 ];
 
 const ALL_MIN_DATE = SKYTREE_MIN_DATE; // 1899年が最古
@@ -47,6 +66,16 @@ const musashinoApi: StationHistoryApi = createStationHistoryApi(
   musashinoStationEvents,
   MUSASHINO_MIN_DATE,
   MUSASHINO_MAX_DATE
+);
+const seibuIkebukuroApi: StationHistoryApi = createStationHistoryApi(
+  seibuIkebukuroStationEvents,
+  SEIBU_IKEBUKURO_MIN_DATE,
+  SEIBU_IKEBUKURO_MAX_DATE
+);
+const seibuChichibuApi: StationHistoryApi = createStationHistoryApi(
+  seibuChichibuStationEvents,
+  SEIBU_CHICHIBU_MIN_DATE,
+  SEIBU_CHICHIBU_MAX_DATE
 );
 const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
 
@@ -101,11 +130,46 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: musashinoApi,
   },
+  seibuIkebukuro: {
+    data: {
+      id: 'seibuIkebukuro',
+      name: '西武池袋線（池袋～吾野）',
+      stationEvents: seibuIkebukuroStationEvents,
+      minDate: SEIBU_IKEBUKURO_MIN_DATE,
+      maxDate: SEIBU_IKEBUKURO_MAX_DATE,
+    },
+    api: seibuIkebukuroApi,
+  },
+  seibuChichibu: {
+    data: {
+      id: 'seibuChichibu',
+      name: '西武秩父線（吾野～西武秩父）',
+      stationEvents: seibuChichibuStationEvents,
+      minDate: SEIBU_CHICHIBU_MIN_DATE,
+      maxDate: SEIBU_CHICHIBU_MAX_DATE,
+    },
+    api: seibuChichibuApi,
+  },
 };
 
 export type RouteId = keyof typeof ROUTES;
 
-export const ROUTE_IDS: RouteId[] = ['all', 'tojo', 'chichibu', 'skytree', 'musashino'];
+export const ROUTE_IDS: RouteId[] = [
+  'all',
+  'tojo',
+  'chichibu',
+  'skytree',
+  'musashino',
+  'seibuIkebukuro',
+  'seibuChichibu',
+];
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
-export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [tojoApi, chichibuApi, skytreeApi, musashinoApi];
+export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
+  tojoApi,
+  chichibuApi,
+  skytreeApi,
+  musashinoApi,
+  seibuIkebukuroApi,
+  seibuChichibuApi,
+];

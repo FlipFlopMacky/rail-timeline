@@ -24,6 +24,8 @@ function App() {
             <option value="chichibu">秩父鉄道秩父本線（羽生～三峰口）</option>
             <option value="skytree">東武スカイツリーライン（浅草～東武動物公園）</option>
             <option value="musashino">JR武蔵野線（府中本町～西船橋）</option>
+            <option value="seibuIkebukuro">西武池袋線（池袋～吾野）</option>
+            <option value="seibuChichibu">西武秩父線（吾野～西武秩父）</option>
           </select>
         </div>
       </header>
