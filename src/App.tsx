@@ -26,6 +26,7 @@ function App() {
             <option value="musashino">JR武蔵野線（府中本町～西船橋）</option>
             <option value="seibuIkebukuro">西武池袋線（池袋～吾野）</option>
             <option value="seibuChichibu">西武秩父線（吾野～西武秩父）</option>
+            <option value="seibuShinjuku">西武新宿線（西武新宿～本川越）</option>
           </select>
         </div>
       </header>

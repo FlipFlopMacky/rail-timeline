@@ -29,6 +29,11 @@ import {
   SEIBU_CHICHIBU_MIN_DATE,
   SEIBU_CHICHIBU_MAX_DATE,
 } from './seibuChichibuStationHistory';
+import {
+  seibuShinjukuStationEvents,
+  SEIBU_SHINJUKU_MIN_DATE,
+  SEIBU_SHINJUKU_MAX_DATE,
+} from './seibuShinjukuStationHistory';
 
 /** 全路線の駅イベントをマージ（orderは路線ごとにオフセットして重複を回避） */
 const ORDER_OFFSET = {
@@ -38,6 +43,7 @@ const ORDER_OFFSET = {
   musashino: 3000,
   seibuIkebukuro: 4000,
   seibuChichibu: 5000,
+  seibuShinjuku: 6000,
 };
 const allStationEvents: StationEvent[] = [
   ...stationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tojo })),
@@ -46,9 +52,10 @@ const allStationEvents: StationEvent[] = [
   ...musashinoStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.musashino })),
   ...seibuIkebukuroStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuIkebukuro })),
   ...seibuChichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuChichibu })),
+  ...seibuShinjukuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuShinjuku })),
 ];
 
-const ALL_MIN_DATE = SKYTREE_MIN_DATE; // 1899年が最古
+const ALL_MIN_DATE = SEIBU_SHINJUKU_MIN_DATE;
 const ALL_MAX_DATE = '2025-12-31';
 
 const tojoApi: StationHistoryApi = createStationHistoryApi(stationEvents, MIN_DATE, MAX_DATE);
@@ -76,6 +83,11 @@ const seibuChichibuApi: StationHistoryApi = createStationHistoryApi(
   seibuChichibuStationEvents,
   SEIBU_CHICHIBU_MIN_DATE,
   SEIBU_CHICHIBU_MAX_DATE
+);
+const seibuShinjukuApi: StationHistoryApi = createStationHistoryApi(
+  seibuShinjukuStationEvents,
+  SEIBU_SHINJUKU_MIN_DATE,
+  SEIBU_SHINJUKU_MAX_DATE
 );
 const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
 
@@ -150,6 +162,16 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: seibuChichibuApi,
   },
+  seibuShinjuku: {
+    data: {
+      id: 'seibuShinjuku',
+      name: '西武新宿線（西武新宿～本川越）',
+      stationEvents: seibuShinjukuStationEvents,
+      minDate: SEIBU_SHINJUKU_MIN_DATE,
+      maxDate: SEIBU_SHINJUKU_MAX_DATE,
+    },
+    api: seibuShinjukuApi,
+  },
 };
 
 export type RouteId = keyof typeof ROUTES;
@@ -162,6 +184,7 @@ export const ROUTE_IDS: RouteId[] = [
   'musashino',
   'seibuIkebukuro',
   'seibuChichibu',
+  'seibuShinjuku',
 ];
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
@@ -172,4 +195,5 @@ export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
   musashinoApi,
   seibuIkebukuroApi,
   seibuChichibuApi,
+  seibuShinjukuApi,
 ];
