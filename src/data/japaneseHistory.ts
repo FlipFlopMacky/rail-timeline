@@ -1,7 +1,7 @@
 /**
  * 日本の歴史的出来事（年ごと）
  * 各路線のタイムラインと合わせて表示する全国的な出来事
- * 最古の路線データに合わせ1895年（西武新宿線前身・川越鉄道）から収録
+ * 最古の路線データに合わせ1894年（西武国分寺線・川越鉄道開業）から収録
  */
 export interface JapaneseHistoryEvent {
   year: number;
@@ -9,6 +9,7 @@ export interface JapaneseHistoryEvent {
 }
 
 export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
+  { year: 1894, events: ['日清戦争（甲午戦争）開戦', '東学党の乱'] },
   // 西武新宿線前身・川越鉄道（1895年）以前後
   { year: 1895, events: ['下関条約（4月）', '台湾・澎湖・遼東半島割譲', '日清戦争終結'] },
   // 東武スカイツリーライン開業（1899年）以前・明治後期
