@@ -12,7 +12,8 @@ function esc(s: string) {
 function createStationIcon(
   stationName: string,
   isJustBorn: boolean,
-  renameOnDate: { previousName: string; newName: string } | null
+  renameOnDate: { previousName: string; newName: string } | null,
+  dotColor: string
 ): L.DivIcon {
   const popClass = isJustBorn ? ' station-pop-in' : '';
   const renameClass = renameOnDate ? ' station-just-renamed' : '';
@@ -41,7 +42,7 @@ function createStationIcon(
   return L.divIcon({
     html: `
       <div class="station-marker-with-label${popClass}${renameClass}">
-        <div class="station-dot"></div>
+        <div class="station-dot" style="background-color:${dotColor}"></div>
         ${labelHtml}
       </div>
     `,
@@ -101,7 +102,9 @@ function formatDateDisplay(dateStr: string): string {
   return `${dateStr} (${era}${year}年)`;
 }
 
-const ROUTE_COLOR = '#1d3557';
+const DEFAULT_LINE_COLOR = '#1d3557';
+/** 全路線モードでは駅が路線横断で混在するためドットはニュートラル色 */
+const ALL_ROUTES_MARKER_DOT_COLOR = '#64748b';
 const ROUTE_WEIGHT = 3;
 
 const FLY_DURATION = 0.8;
@@ -140,9 +143,18 @@ interface TimelineMapProps {
   routeApi: StationHistoryApi;
   /** 全路線モードで各路線ごとに線を描画する場合のAPI配列 */
   routeApisForPolylines?: StationHistoryApi[];
+  /** 単一路線表示時の線・駅ドット色 */
+  lineColor?: string;
+  /** 全路線表示時の各路線の線色（`routeApisForPolylines` と同じ長さ・順序） */
+  polylineColors?: string[];
 }
 
-export function TimelineMap({ routeApi, routeApisForPolylines }: TimelineMapProps) {
+export function TimelineMap({
+  routeApi,
+  routeApisForPolylines,
+  lineColor,
+  polylineColors,
+}: TimelineMapProps) {
   const { stationEvents, MIN_DATE, MAX_DATE } = routeApi;
 
   const eventDates = useMemo(() => {
@@ -195,6 +207,10 @@ export function TimelineMap({ routeApi, routeApisForPolylines }: TimelineMapProp
     () => getJapaneseHistoryForYear(currentYear),
     [currentYear]
   );
+
+  const isAllRoutesMode = Boolean(routeApisForPolylines);
+  const markerDotColor = isAllRoutesMode ? ALL_ROUTES_MARKER_DOT_COLOR : (lineColor ?? DEFAULT_LINE_COLOR);
+  const singlePolylineColor = lineColor ?? DEFAULT_LINE_COLOR;
 
   const jumpToNextEvent = useCallback(() => {
     const nextIdx = eventDates.findIndex((d) => d > currentDate);
@@ -338,14 +354,17 @@ export function TimelineMap({ routeApi, routeApisForPolylines }: TimelineMapProp
                 <Polyline
                   key={i}
                   positions={positions}
-                  pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
+                  pathOptions={{
+                    color: polylineColors?.[i] ?? DEFAULT_LINE_COLOR,
+                    weight: ROUTE_WEIGHT,
+                  }}
                 />
               ) : null
             )
           ) : (
             <Polyline
               positions={routePositions}
-              pathOptions={{ color: ROUTE_COLOR, weight: ROUTE_WEIGHT }}
+              pathOptions={{ color: singlePolylineColor, weight: ROUTE_WEIGHT }}
             />
           )}
           {stations.map((station) => {
@@ -357,7 +376,7 @@ export function TimelineMap({ routeApi, routeApisForPolylines }: TimelineMapProp
               <Marker
                 key={`${station.lat}-${station.lon}-${station.name}`}
                 position={[station.lat, station.lon]}
-                icon={createStationIcon(station.name, isJustBorn, renameOnDate)}
+                icon={createStationIcon(station.name, isJustBorn, renameOnDate, markerDotColor)}
               >
                 <Popup>
                   <div className="popup-station">

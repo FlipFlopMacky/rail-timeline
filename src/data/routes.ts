@@ -220,6 +220,19 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
 
 export type RouteId = keyof typeof ROUTES;
 
+/** 地図のポリライン・駅ドット用（各路線の案内色・イメージに近い色） */
+export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
+  tojo: '#ED6C00',
+  chichibu: '#9A5C3F',
+  skytree: '#E60012',
+  musashino: '#EC6800',
+  seibuIkebukuro: '#0068B7',
+  seibuChichibu: '#E8B500',
+  seibuShinjuku: '#00A9E0',
+  seibuKokubunji: '#E7578A',
+  tobuNoda: '#00A857',
+};
+
 export const ROUTE_IDS: RouteId[] = [
   'all',
   'tojo',
@@ -232,6 +245,11 @@ export const ROUTE_IDS: RouteId[] = [
   'seibuKokubunji',
   'tobuNoda',
 ];
+
+/** `INDIVIDUAL_ROUTE_APIS` と同じ並びの線色（全路線モードのポリライン用） */
+export const INDIVIDUAL_ROUTE_LINE_COLORS: string[] = (
+  ROUTE_IDS.filter((id): id is Exclude<RouteId, 'all'> => id !== 'all') as Exclude<RouteId, 'all'>[]
+).map((id) => ROUTE_LINE_COLORS[id]);
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
 export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [

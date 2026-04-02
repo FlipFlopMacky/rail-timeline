@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import './App.css';
 import { TimelineMap } from './components/TimelineMap';
-import { ROUTES, INDIVIDUAL_ROUTE_APIS, type RouteId } from './data/routes';
+import {
+  ROUTES,
+  INDIVIDUAL_ROUTE_APIS,
+  INDIVIDUAL_ROUTE_LINE_COLORS,
+  ROUTE_LINE_COLORS,
+  type RouteId,
+} from './data/routes';
 
 function App() {
   const [routeId, setRouteId] = useState<RouteId>('all');
@@ -36,6 +42,8 @@ function App() {
         <TimelineMap
           routeApi={api}
           routeApisForPolylines={routeId === 'all' ? INDIVIDUAL_ROUTE_APIS : undefined}
+          polylineColors={routeId === 'all' ? INDIVIDUAL_ROUTE_LINE_COLORS : undefined}
+          lineColor={routeId !== 'all' ? ROUTE_LINE_COLORS[routeId] : undefined}
         />
       </main>
     </div>
