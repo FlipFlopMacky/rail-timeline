@@ -35,6 +35,7 @@ function App() {
             <option value="seibuShinjuku">西武新宿線（西武新宿～本川越）</option>
             <option value="seibuKokubunji">西武国分寺線（国分寺～東村山）</option>
             <option value="tobuNoda">東武野田線・アーバンパークライン（大宮～船橋）</option>
+            <option value="jrKawagoe">JR川越線（大宮～高麗川）</option>
           </select>
         </div>
       </header>

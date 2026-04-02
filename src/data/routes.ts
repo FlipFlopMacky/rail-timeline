@@ -44,6 +44,11 @@ import {
   TOBU_NODA_MIN_DATE,
   TOBU_NODA_MAX_DATE,
 } from './tobuNodaStationHistory';
+import {
+  jrKawagoeStationEvents,
+  JR_KAWAGOE_MIN_DATE,
+  JR_KAWAGOE_MAX_DATE,
+} from './jrKawagoeStationHistory';
 
 /** 全路線の駅イベントをマージ（orderは路線ごとにオフセットして重複を回避） */
 const ORDER_OFFSET = {
@@ -56,6 +61,7 @@ const ORDER_OFFSET = {
   seibuShinjuku: 6000,
   seibuKokubunji: 7000,
   tobuNoda: 8000,
+  jrKawagoe: 9000,
 };
 const allStationEvents: StationEvent[] = [
   ...stationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tojo })),
@@ -67,6 +73,7 @@ const allStationEvents: StationEvent[] = [
   ...seibuShinjukuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuShinjuku })),
   ...seibuKokubunjiStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuKokubunji })),
   ...tobuNodaStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuNoda })),
+  ...jrKawagoeStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrKawagoe })),
 ];
 
 const ALL_MIN_DATE = SEIBU_KOKUBUNJI_MIN_DATE;
@@ -112,6 +119,11 @@ const tobuNodaApi: StationHistoryApi = createStationHistoryApi(
   tobuNodaStationEvents,
   TOBU_NODA_MIN_DATE,
   TOBU_NODA_MAX_DATE
+);
+const jrKawagoeApi: StationHistoryApi = createStationHistoryApi(
+  jrKawagoeStationEvents,
+  JR_KAWAGOE_MIN_DATE,
+  JR_KAWAGOE_MAX_DATE
 );
 const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
 
@@ -216,6 +228,16 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: tobuNodaApi,
   },
+  jrKawagoe: {
+    data: {
+      id: 'jrKawagoe',
+      name: 'JR川越線（大宮～高麗川）',
+      stationEvents: jrKawagoeStationEvents,
+      minDate: JR_KAWAGOE_MIN_DATE,
+      maxDate: JR_KAWAGOE_MAX_DATE,
+    },
+    api: jrKawagoeApi,
+  },
 };
 
 export type RouteId = keyof typeof ROUTES;
@@ -231,6 +253,7 @@ export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
   seibuShinjuku: '#00A9E0',
   seibuKokubunji: '#E7578A',
   tobuNoda: '#00A857',
+  jrKawagoe: '#7AC940',
 };
 
 export const ROUTE_IDS: RouteId[] = [
@@ -244,6 +267,7 @@ export const ROUTE_IDS: RouteId[] = [
   'seibuShinjuku',
   'seibuKokubunji',
   'tobuNoda',
+  'jrKawagoe',
 ];
 
 /** `INDIVIDUAL_ROUTE_APIS` と同じ並びの線色（全路線モードのポリライン用） */
@@ -262,4 +286,5 @@ export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
   seibuShinjukuApi,
   seibuKokubunjiApi,
   tobuNodaApi,
+  jrKawagoeApi,
 ];
