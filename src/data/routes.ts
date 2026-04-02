@@ -39,6 +39,11 @@ import {
   SEIBU_KOKUBUNJI_MIN_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE,
 } from './seibuKokubunjiStationHistory';
+import {
+  tobuNodaStationEvents,
+  TOBU_NODA_MIN_DATE,
+  TOBU_NODA_MAX_DATE,
+} from './tobuNodaStationHistory';
 
 /** 全路線の駅イベントをマージ（orderは路線ごとにオフセットして重複を回避） */
 const ORDER_OFFSET = {
@@ -50,6 +55,7 @@ const ORDER_OFFSET = {
   seibuChichibu: 5000,
   seibuShinjuku: 6000,
   seibuKokubunji: 7000,
+  tobuNoda: 8000,
 };
 const allStationEvents: StationEvent[] = [
   ...stationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tojo })),
@@ -60,6 +66,7 @@ const allStationEvents: StationEvent[] = [
   ...seibuChichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuChichibu })),
   ...seibuShinjukuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuShinjuku })),
   ...seibuKokubunjiStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuKokubunji })),
+  ...tobuNodaStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuNoda })),
 ];
 
 const ALL_MIN_DATE = SEIBU_KOKUBUNJI_MIN_DATE;
@@ -100,6 +107,11 @@ const seibuKokubunjiApi: StationHistoryApi = createStationHistoryApi(
   seibuKokubunjiStationEvents,
   SEIBU_KOKUBUNJI_MIN_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE
+);
+const tobuNodaApi: StationHistoryApi = createStationHistoryApi(
+  tobuNodaStationEvents,
+  TOBU_NODA_MIN_DATE,
+  TOBU_NODA_MAX_DATE
 );
 const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
 
@@ -194,6 +206,16 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: seibuKokubunjiApi,
   },
+  tobuNoda: {
+    data: {
+      id: 'tobuNoda',
+      name: '東武野田線（大宮～船橋）',
+      stationEvents: tobuNodaStationEvents,
+      minDate: TOBU_NODA_MIN_DATE,
+      maxDate: TOBU_NODA_MAX_DATE,
+    },
+    api: tobuNodaApi,
+  },
 };
 
 export type RouteId = keyof typeof ROUTES;
@@ -208,6 +230,7 @@ export const ROUTE_IDS: RouteId[] = [
   'seibuChichibu',
   'seibuShinjuku',
   'seibuKokubunji',
+  'tobuNoda',
 ];
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
@@ -220,4 +243,5 @@ export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
   seibuChichibuApi,
   seibuShinjukuApi,
   seibuKokubunjiApi,
+  tobuNodaApi,
 ];

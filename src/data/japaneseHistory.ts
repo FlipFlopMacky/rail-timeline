@@ -1,8 +1,3 @@
-/**
- * 日本の歴史的出来事（年ごと）
- * 各路線のタイムラインと合わせて表示する全国的な出来事
- * 最古の路線データに合わせ1894年（西武国分寺線・川越鉄道開業）から収録
- */
 export interface JapaneseHistoryEvent {
   year: number;
   events: string[];
@@ -10,12 +5,9 @@ export interface JapaneseHistoryEvent {
 
 export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1894, events: ['日清戦争（甲午戦争）開戦', '東学党の乱'] },
-  // 西武新宿線前身・川越鉄道（1895年）以前後
   { year: 1895, events: ['下関条約（4月）', '台湾・澎湖・遼東半島割譲', '日清戦争終結'] },
-  // 東武スカイツリーライン開業（1899年）以前・明治後期
   { year: 1899, events: ['治外法権撤廃（7月）', '内地雑居実施', '勝海舟没'] },
   { year: 1900, events: ['北清事変（義和団の乱）勃発', '治安警察法公布', '立憲政友会結成'] },
-  // 秩父鉄道開業（1901年）
   { year: 1901, events: ['八幡製鉄所操業開始', '北清事変（義和団の乱）解決'] },
   { year: 1902, events: ['日英同盟締結', '足尾銅山鉱毒事件で田中正造が天皇に直訴'] },
   { year: 1903, events: ['第5回内国勧業博覧会（大阪）', '八甲田雪中行軍遭難'] },
@@ -25,7 +17,6 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1911, events: ['関税自主権回復', '辛亥革命（中国）'] },
   { year: 1912, events: ['明治天皇崩御、大正時代開始（7月30日）', 'タイタニック号沈没'] },
   { year: 1913, events: ['第一次護憲運動', '大正政変（桂太郎内閣総辞職）'] },
-  // 東武東上線開業（1914年）以降
   { year: 1914, events: ['第一次世界大戦勃発（7月）', 'パナマ運河開通'] },
   { year: 1915, events: ['二十一か条の要求', '国定教科書第2期'] },
   { year: 1916, events: ['寺内内閣成立'] },
@@ -39,6 +30,7 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1925, events: ['普通選挙法成立', '治安維持法公布', '日ソ基本条約'] },
   { year: 1926, events: ['大正天皇崩御、昭和時代開始（12月25日）'] },
   { year: 1927, events: ['金融恐慌', '田中義一内閣成立', '東方会議'] },
+  { year: 1929, events: ['世界恐慌（米ウォール街暴落・10月）', '濱口雄幸内閣成立'] },
   { year: 1930, events: ['ロンドン海軍軍縮条約', '濱口首相狙撃'] },
   { year: 1931, events: ['満州事変勃発'] },
   { year: 1932, events: ['五・一五事件', '満州国建国', '国際連盟脱退（1933年）'] },
@@ -49,10 +41,13 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1937, events: ['盧溝橋事件、日中戦争全面化'] },
   { year: 1940, events: ['日独伊三国同盟', '大政翼賛会発足'] },
   { year: 1941, events: ['太平洋戦争開戦（12月8日）'] },
+  { year: 1944, events: ['サイパン失陥（7月）・東條内閣総辞職', 'マリアナ・フィリピン海海戦'] },
   { year: 1945, events: ['終戦（8月15日）', 'ポツダム宣言受諾'] },
   { year: 1946, events: ['日本国憲法公布'] },
   { year: 1947, events: ['日本国憲法施行', '教育基本法施行'] },
+  { year: 1948, events: ['全人類初の音速飛行（米軍ベルX-1）', '吉田茂首相再登板・七・二〇命令'] },
   { year: 1949, events: ['ドッジ・ライン（経済安定化）', '下山事件・三鷹事件・松川事件', '湯川秀樹ノーベル物理学賞'] },
+  { year: 1950, events: ['朝鮮戦争勃発（6月）', 'レッドパージ本格化'] },
   { year: 1951, events: ['サンフランシスコ平和条約調印', '日米安全保障条約'] },
   { year: 1954, events: ['自衛隊発足', 'ビキニ環礁水爆実験'] },
   { year: 1956, events: ['日ソ共同宣言、国連加盟'] },
@@ -61,6 +56,8 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1964, events: ['東京オリンピック開催', '東海道新幹線開業'] },
   { year: 1966, events: ['日韓基本条約批准', 'ビートルズ来日公演', '核兵器非核三原則'] },
   { year: 1967, events: ['公害対策基本法施行', 'ベトナム反戦運動', '日韓会談再開'] },
+  { year: 1968, events: ['三億円事件（12月）', '小笠原諸島の本土復帰（6月）'] },
+  { year: 1969, events: ['アポロ11号月面着陸（7月）', '東大安田講堂事件（1月）'] },
   { year: 1970, events: ['大阪万博開催', 'よど号ハイジャック事件'] },
   { year: 1971, events: ['ニクソン・ショック', '沖縄返還協定調印'] },
   { year: 1972, events: ['日中共同声明', '沖縄返還'] },
@@ -69,18 +66,28 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 1977, events: ['日航機ハイジャック事件（ダッカ）'] },
   { year: 1979, events: ['第二次オイルショック'] },
   { year: 1981, events: ['第二次臨時行政調査会発足', 'チャールズ皇太子とダイアナ妃ご成婚'] },
+  { year: 1983, events: ['ファミリーコンピュータ発売（7月）', '韓国航空007便撃墜事件'] },
   { year: 1984, events: ['グリコ・森永事件', 'NHK大河「山河燃ゆ」'] },
   { year: 1985, events: ['プラザ合意', '日航123便墜落事故'] },
   { year: 1987, events: ['国鉄分割民営化（JR発足）', 'NHK大河「独眼竜政宗」', '東京ドーム着工'] },
   { year: 1989, events: ['昭和天皇崩御、平成時代開始（1月7日）'] },
+  { year: 1990, events: ['ペルシャ湾戦争（1〜2月）', '東欧民主化・ベルリンの壁崩壊の余波'] },
+  { year: 1991, events: ['湾岸戦争終結', 'ソ連解体（12月）'] },
+  { year: 1992, events: ['明仁天皇即位礼正殿の儀（11月）', 'バルセロナ夏五輪'] },
   { year: 1993, events: ['細川連立政権発足', 'Jリーグ開幕'] },
   { year: 1995, events: ['阪神・淡路大震災', 'オウム真理教事件'] },
   { year: 1998, events: ['長野冬季オリンピック'] },
+  { year: 1999, events: ['東海村JCO臨界事故（9月）', '世田谷一家殺害事件（12月）'] },
   { year: 2002, events: ['サッカーW杯日韓大会'] },
   { year: 2003, events: ['イラク戦争', 'SARS流行'] },
+  { year: 2004, events: ['新潟県中越地震（10月）', 'アテネ夏五輪'] },
+  { year: 2005, events: ['郵政民営化法案否決・衆院解散・総選挙', 'JR福知山線脱線事故（4月）'] },
+  { year: 2007, events: ['長崎市長銃撃死亡事件（4月）', '第21回参議院議員通常選挙'] },
   { year: 2008, events: ['リーマン・ショック', '北京オリンピック'] },
+  { year: 2009, events: ['民主党政権発足（衆院選・政権交代）', '新型インフルエンザ（H1N1）世界的流行'] },
   { year: 2011, events: ['東日本大震災（3月11日）', '東京電力福島第一原発事故'] },
   { year: 2012, events: ['東京スカイツリー開業（5月22日）', '業平橋駅→とうきょうスカイツリー駅改称'] },
+  { year: 2014, events: ['消費税率5%→8%（4月）', '集団的自衛権行使容認の閣議決定'] },
   { year: 2017, events: ['天皇陛下退位の意向表明', '北朝鮮ミサイル発射相次ぐ'] },
   { year: 2018, events: ['平昌冬季五輪', '西日本豪雨'] },
   { year: 2019, events: ['令和改元（5月1日）'] },
@@ -88,7 +95,6 @@ export const japaneseHistoryEvents: JapaneseHistoryEvent[] = [
   { year: 2021, events: ['東京2020オリンピック・パラリンピック開催'] },
 ];
 
-/** 指定年の日本の歴史的出来事を取得 */
 export function getJapaneseHistoryForYear(year: number): string[] {
   const entry = japaneseHistoryEvents.find((e) => e.year === year);
   return entry?.events ?? [];
