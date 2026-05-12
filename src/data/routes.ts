@@ -45,6 +45,11 @@ import {
   TOBU_NODA_MAX_DATE,
 } from './tobuNodaStationHistory';
 import {
+  tobuOgoseStationEvents,
+  TOBU_OGOSE_MIN_DATE,
+  TOBU_OGOSE_MAX_DATE,
+} from './tobuOgoseStationHistory';
+import {
   jrKawagoeStationEvents,
   JR_KAWAGOE_MIN_DATE,
   JR_KAWAGOE_MAX_DATE,
@@ -71,6 +76,7 @@ const ORDER_OFFSET = {
   seibuShinjuku: 6000,
   seibuKokubunji: 7000,
   tobuNoda: 8000,
+  tobuOgose: 12000,
   jrKawagoe: 9000,
   jrSaikyo: 10000,
   jrTohokuMain: 11000,
@@ -85,6 +91,7 @@ const allStationEvents: StationEvent[] = [
   ...seibuShinjukuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuShinjuku })),
   ...seibuKokubunjiStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuKokubunji })),
   ...tobuNodaStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuNoda })),
+  ...tobuOgoseStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuOgose })),
   ...jrKawagoeStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrKawagoe })),
   ...jrSaikyoStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrSaikyo })),
   ...jrTohokuMainStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrTohokuMain })),
@@ -101,6 +108,7 @@ const ALL_MIN_DATE = [
   SEIBU_SHINJUKU_MIN_DATE,
   SEIBU_KOKUBUNJI_MIN_DATE,
   TOBU_NODA_MIN_DATE,
+  TOBU_OGOSE_MIN_DATE,
   JR_KAWAGOE_MIN_DATE,
   JR_SAIKYO_MIN_DATE,
   JR_TOHOKU_MAIN_MIN_DATE,
@@ -115,6 +123,7 @@ const ALL_MAX_DATE = [
   SEIBU_SHINJUKU_MAX_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE,
   TOBU_NODA_MAX_DATE,
+  TOBU_OGOSE_MAX_DATE,
   JR_KAWAGOE_MAX_DATE,
   JR_SAIKYO_MAX_DATE,
   JR_TOHOKU_MAIN_MAX_DATE,
@@ -160,6 +169,11 @@ const tobuNodaApi: StationHistoryApi = createStationHistoryApi(
   tobuNodaStationEvents,
   TOBU_NODA_MIN_DATE,
   TOBU_NODA_MAX_DATE
+);
+const tobuOgoseApi: StationHistoryApi = createStationHistoryApi(
+  tobuOgoseStationEvents,
+  TOBU_OGOSE_MIN_DATE,
+  TOBU_OGOSE_MAX_DATE
 );
 const jrKawagoeApi: StationHistoryApi = createStationHistoryApi(
   jrKawagoeStationEvents,
@@ -279,6 +293,16 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: tobuNodaApi,
   },
+  tobuOgose: {
+    data: {
+      id: 'tobuOgose',
+      name: '東武越生線（坂戸～越生）',
+      stationEvents: tobuOgoseStationEvents,
+      minDate: TOBU_OGOSE_MIN_DATE,
+      maxDate: TOBU_OGOSE_MAX_DATE,
+    },
+    api: tobuOgoseApi,
+  },
   jrKawagoe: {
     data: {
       id: 'jrKawagoe',
@@ -324,6 +348,7 @@ export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
   seibuShinjuku: '#00A9E0',
   seibuKokubunji: '#E7578A',
   tobuNoda: '#00A857',
+  tobuOgose: '#C45C1A',
   jrKawagoe: '#7AC940',
   jrSaikyo: '#5CB531',
   jrTohokuMain: '#F68B1F',
@@ -340,6 +365,7 @@ export const ROUTE_IDS: RouteId[] = [
   'seibuShinjuku',
   'seibuKokubunji',
   'tobuNoda',
+  'tobuOgose',
   'jrKawagoe',
   'jrSaikyo',
   'jrTohokuMain',
@@ -361,6 +387,7 @@ export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
   seibuShinjukuApi,
   seibuKokubunjiApi,
   tobuNodaApi,
+  tobuOgoseApi,
   jrKawagoeApi,
   jrSaikyoApi,
   jrTohokuMainApi,
