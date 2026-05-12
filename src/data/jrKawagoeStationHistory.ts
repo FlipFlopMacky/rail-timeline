@@ -20,4 +20,4 @@ export const jrKawagoeStationEvents: StationEvent[] = [
 ];
 
 export const JR_KAWAGOE_MIN_DATE = '1940-07-22';
-export const JR_KAWAGOE_MAX_DATE = '2025-12-31';
+export const JR_KAWAGOE_MAX_DATE = '2009-03-14';

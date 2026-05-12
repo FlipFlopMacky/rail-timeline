@@ -42,4 +42,4 @@ export const musashinoStationEvents: StationEvent[] = [
 ];
 
 export const MUSASHINO_MIN_DATE = '1973-04-01';
-export const MUSASHINO_MAX_DATE = '2025-12-31';
+export const MUSASHINO_MAX_DATE = '2012-03-17';

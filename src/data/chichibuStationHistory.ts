@@ -62,4 +62,4 @@ export const chichibuStationEvents: StationEvent[] = [
 ];
 
 export const CHICHIBU_MIN_DATE = '1901-10-07';
-export const CHICHIBU_MAX_DATE = '2025-12-31';
+export const CHICHIBU_MAX_DATE = '2018-10-20';

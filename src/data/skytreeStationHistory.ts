@@ -65,4 +65,4 @@ export const skytreeStationEvents: StationEvent[] = [
 ];
 
 export const SKYTREE_MIN_DATE = '1899-08-27';
-export const SKYTREE_MAX_DATE = '2025-12-31';
+export const SKYTREE_MAX_DATE = '2017-04-01';

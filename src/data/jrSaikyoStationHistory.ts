@@ -29,4 +29,4 @@ export const jrSaikyoStationEvents: StationEvent[] = [
 ];
 
 export const JR_SAIKYO_MIN_DATE = '1985-09-30';
-export const JR_SAIKYO_MAX_DATE = '2025-12-31';
+export const JR_SAIKYO_MAX_DATE = '2002-12-01';

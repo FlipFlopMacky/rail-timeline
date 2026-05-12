@@ -57,4 +57,4 @@ export const seibuShinjukuStationEvents: StationEvent[] = [
 ];
 
 export const SEIBU_SHINJUKU_MIN_DATE = '1895-03-21';
-export const SEIBU_SHINJUKU_MAX_DATE = '2025-12-31';
+export const SEIBU_SHINJUKU_MAX_DATE = '1993-04-28';

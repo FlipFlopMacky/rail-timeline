@@ -63,4 +63,4 @@ export const tobuNodaStationEvents: StationEvent[] = [
 ];
 
 export const TOBU_NODA_MIN_DATE = '1911-05-09';
-export const TOBU_NODA_MAX_DATE = '2025-12-31';
+export const TOBU_NODA_MAX_DATE = '2005-08-24';

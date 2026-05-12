@@ -43,4 +43,4 @@ export const jrTohokuMainStationEvents: StationEvent[] = [
 ];
 
 export const JR_TOHOKU_MAIN_MIN_DATE = '1883-07-28';
-export const JR_TOHOKU_MAIN_MAX_DATE = '2025-12-31';
+export const JR_TOHOKU_MAIN_MAX_DATE = '2009-03-14';

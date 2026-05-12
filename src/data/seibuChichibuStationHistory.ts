@@ -18,4 +18,4 @@ export const seibuChichibuStationEvents: StationEvent[] = [
 ];
 
 export const SEIBU_CHICHIBU_MIN_DATE = '1969-10-14';
-export const SEIBU_CHICHIBU_MAX_DATE = '2025-12-31';
+export const SEIBU_CHICHIBU_MAX_DATE = '1969-10-14';

@@ -65,4 +65,4 @@ export const seibuIkebukuroStationEvents: StationEvent[] = [
 ];
 
 export const SEIBU_IKEBUKURO_MIN_DATE = '1915-04-15';
-export const SEIBU_IKEBUKURO_MAX_DATE = '2025-12-31';
+export const SEIBU_IKEBUKURO_MAX_DATE = '1994-12-07';

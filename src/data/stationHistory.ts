@@ -63,7 +63,7 @@ export const stationEvents: StationEvent[] = [
 ];
 
 export const MIN_DATE = '1914-05-01';
-export const MAX_DATE = '2025-12-31';
+export const MAX_DATE = '2020-10-31';
 
 export function getStationsAtDate(dateStr: string): { name: string; lat: number; lon: number; order: number }[] {
   const targetDate = new Date(dateStr).getTime();

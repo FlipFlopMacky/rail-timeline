@@ -16,4 +16,4 @@ export const seibuKokubunjiStationEvents: StationEvent[] = [
 ];
 
 export const SEIBU_KOKUBUNJI_MIN_DATE = '1894-12-21';
-export const SEIBU_KOKUBUNJI_MAX_DATE = '2025-12-31';
+export const SEIBU_KOKUBUNJI_MAX_DATE = '1955-02-10';

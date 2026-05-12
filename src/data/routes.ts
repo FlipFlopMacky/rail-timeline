@@ -90,8 +90,35 @@ const allStationEvents: StationEvent[] = [
   ...jrTohokuMainStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrTohokuMain })),
 ];
 
-const ALL_MIN_DATE = SEIBU_KOKUBUNJI_MIN_DATE;
-const ALL_MAX_DATE = '2025-12-31';
+/** 登録路線のうち最も古い開始日（ISO 日付文字列同士の比較） */
+const ALL_MIN_DATE = [
+  MIN_DATE,
+  CHICHIBU_MIN_DATE,
+  SKYTREE_MIN_DATE,
+  MUSASHINO_MIN_DATE,
+  SEIBU_IKEBUKURO_MIN_DATE,
+  SEIBU_CHICHIBU_MIN_DATE,
+  SEIBU_SHINJUKU_MIN_DATE,
+  SEIBU_KOKUBUNJI_MIN_DATE,
+  TOBU_NODA_MIN_DATE,
+  JR_KAWAGOE_MIN_DATE,
+  JR_SAIKYO_MIN_DATE,
+  JR_TOHOKU_MAIN_MIN_DATE,
+].reduce((earliest, d) => (d < earliest ? d : earliest));
+const ALL_MAX_DATE = [
+  MAX_DATE,
+  CHICHIBU_MAX_DATE,
+  SKYTREE_MAX_DATE,
+  MUSASHINO_MAX_DATE,
+  SEIBU_IKEBUKURO_MAX_DATE,
+  SEIBU_CHICHIBU_MAX_DATE,
+  SEIBU_SHINJUKU_MAX_DATE,
+  SEIBU_KOKUBUNJI_MAX_DATE,
+  TOBU_NODA_MAX_DATE,
+  JR_KAWAGOE_MAX_DATE,
+  JR_SAIKYO_MAX_DATE,
+  JR_TOHOKU_MAIN_MAX_DATE,
+].reduce((latest, d) => (d > latest ? d : latest));
 
 const tojoApi: StationHistoryApi = createStationHistoryApi(stationEvents, MIN_DATE, MAX_DATE);
 const chichibuApi: StationHistoryApi = createStationHistoryApi(
