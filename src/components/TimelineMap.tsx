@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { StationEvent, StationHistoryApi } from '../data/types';
+import type { StationHistoryApi, TimelineEvent } from '../data/types';
 import { getJapaneseHistoryForYear } from '../data/japaneseHistory';
 
 function esc(s: string) {
@@ -66,11 +66,20 @@ function sliderValueToDate(value: number, minDate: string, maxDate: string): str
   return date.toISOString().slice(0, 10);
 }
 
-function formatEventShort(e: StationEvent): string {
-  if (e.type === 'open') return `${e.stationName} 開業`;
-  if (e.type === 'rename') return `${e.previousName}→${e.stationName} 改称`;
-  if (e.type === 'close') return `${e.stationName} 廃止`;
-  return e.stationName;
+function formatTimelineEvent(ev: TimelineEvent): string {
+  if (ev.kind === 'station') {
+    const e = ev.event;
+    if (e.type === 'open') return `${e.stationName} 開業`;
+    if (e.type === 'rename') return `${e.previousName}→${e.stationName} 改称`;
+    if (e.type === 'close') return `${e.stationName} 廃止`;
+    return e.stationName;
+  }
+  return `路線名 ${ev.previousLineName}→${ev.newLineName}`;
+}
+
+function timelineEventBadgeClass(ev: TimelineEvent): string {
+  if (ev.kind === 'lineName') return 'event-lineName';
+  return `event-${ev.event.type}`;
 }
 
 function formatDateShort(dateStr: string): string {
@@ -155,12 +164,12 @@ export function TimelineMap({
   lineColor,
   polylineColors,
 }: TimelineMapProps) {
-  const { stationEvents, MIN_DATE, MAX_DATE } = routeApi;
+  const { stationEvents, lineNameEvents, MIN_DATE, MAX_DATE } = routeApi;
 
   const eventDates = useMemo(() => {
-    const dates = [...new Set(stationEvents.map((e) => e.date))].sort();
-    return dates;
-  }, [stationEvents]);
+    const dates = [...stationEvents.map((e) => e.date), ...lineNameEvents.map((e) => e.date)];
+    return [...new Set(dates)].sort();
+  }, [stationEvents, lineNameEvents]);
 
   const [currentDate, setCurrentDate] = useState(MIN_DATE);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -173,9 +182,9 @@ export function TimelineMap({
   const [playSpeedMs, setPlaySpeedMs] = useState(1200);
 
   const stations = useMemo(() => routeApi.getStationsAtDate(currentDate), [routeApi, currentDate]);
-  const eventsOnDate = useMemo(() => routeApi.getEventsOnDate(currentDate), [routeApi, currentDate]);
+  const eventsOnDate = useMemo(() => routeApi.getTimelineEventsOnDate(currentDate), [routeApi, currentDate]);
   const { last: lastEvent, next: nextEvent } = useMemo(
-    () => routeApi.getNearestEvents(currentDate),
+    () => routeApi.getNearestTimelineEvents(currentDate),
     [routeApi, currentDate]
   );
 
@@ -265,9 +274,9 @@ export function TimelineMap({
             <div className="timeline-events-on-date">
               <span className="timeline-events-label">この日に起きたこと：</span>
               <span className="timeline-events-list">
-                {eventsOnDate.map((e, i) => (
-                  <span key={i} className={`timeline-event-badge event-${e.type}`}>
-                    {formatEventShort(e)}
+                {eventsOnDate.map((ev, i) => (
+                  <span key={i} className={`timeline-event-badge ${timelineEventBadgeClass(ev)}`}>
+                    {formatTimelineEvent(ev)}
                   </span>
                 ))}
               </span>
@@ -277,11 +286,17 @@ export function TimelineMap({
               <span className="timeline-events-label">この期間：</span>
               <span className="timeline-events-context-detail">
                 {lastEvent && (
-                  <span>直近 {formatDateShort(lastEvent.date)} {formatEventShort(lastEvent)}</span>
+                  <span>
+                    直近 {formatDateShort(lastEvent.kind === 'station' ? lastEvent.event.date : lastEvent.date)}{' '}
+                    {formatTimelineEvent(lastEvent)}
+                  </span>
                 )}
                 {lastEvent && nextEvent && <span className="timeline-events-sep">／</span>}
                 {nextEvent && (
-                  <span>次回 {formatDateShort(nextEvent.date)} {formatEventShort(nextEvent)}</span>
+                  <span>
+                    次回 {formatDateShort(nextEvent.kind === 'station' ? nextEvent.event.date : nextEvent.date)}{' '}
+                    {formatTimelineEvent(nextEvent)}
+                  </span>
                 )}
                 {!lastEvent && !nextEvent && <span>イベントなし</span>}
               </span>

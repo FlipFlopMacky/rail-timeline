@@ -1,12 +1,13 @@
 /**
  * 駅履歴データからAPIを生成する共通ユーティリティ
  */
-import type { StationEvent, StationHistoryApi } from './types';
+import type { LineNameEvent, StationEvent, StationHistoryApi, TimelineEvent } from './types';
 
 export function createStationHistoryApi(
   stationEvents: StationEvent[],
   minDate: string,
-  maxDate: string
+  maxDate: string,
+  lineNameEvents: LineNameEvent[] = []
 ): StationHistoryApi {
   const getKey = (lat: number, lon: number) => `${lat.toFixed(5)},${lon.toFixed(5)}`;
 
@@ -53,22 +54,56 @@ export function createStationHistoryApi(
     return event ? { previousName: event.previousName ?? '', newName: event.stationName } : null;
   }
 
-  function getEventsOnDate(dateStr: string): StationEvent[] {
+  function getStationEventsOnDate(dateStr: string): StationEvent[] {
     return stationEvents.filter((e) => e.date === dateStr);
   }
 
-  function getNearestEvents(dateStr: string): { last: StationEvent | null; next: StationEvent | null } {
+  function getTimelineEventsOnDate(dateStr: string): TimelineEvent[] {
+    const onDayStations = stationEvents
+      .filter((e) => e.date === dateStr)
+      .sort((a, b) => a.order - b.order);
+    const onDayLines = lineNameEvents.filter((e) => e.date === dateStr);
+    return [
+      ...onDayStations.map((event): TimelineEvent => ({ kind: 'station', event })),
+      ...onDayLines.map(
+        (ln): TimelineEvent => ({
+          kind: 'lineName',
+          date: ln.date,
+          previousLineName: ln.previousLineName,
+          newLineName: ln.newLineName,
+        })
+      ),
+    ];
+  }
+
+  function getNearestTimelineEvents(dateStr: string): { last: TimelineEvent | null; next: TimelineEvent | null } {
     const targetTime = new Date(dateStr).getTime();
-    const sorted = [...stationEvents].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    let last: StationEvent | null = null;
-    let next: StationEvent | null = null;
-    for (const e of sorted) {
-      const t = new Date(e.date).getTime();
-      if (t <= targetTime) last = e;
-      else if (t > targetTime && !next) {
-        next = e;
+    type Entry = { t: number; seq: number; ev: TimelineEvent };
+    const entries: Entry[] = [];
+    let seq = 0;
+    for (const e of stationEvents) {
+      entries.push({ t: new Date(e.date).getTime(), seq: seq++, ev: { kind: 'station', event: e } });
+    }
+    for (const ln of lineNameEvents) {
+      entries.push({
+        t: new Date(ln.date).getTime(),
+        seq: seq++,
+        ev: {
+          kind: 'lineName',
+          date: ln.date,
+          previousLineName: ln.previousLineName,
+          newLineName: ln.newLineName,
+        },
+      });
+    }
+    entries.sort((a, b) => (a.t !== b.t ? a.t - b.t : a.seq - b.seq));
+
+    let last: TimelineEvent | null = null;
+    let next: TimelineEvent | null = null;
+    for (const { t, ev } of entries) {
+      if (t <= targetTime) last = ev;
+      else {
+        next = ev;
         break;
       }
     }
@@ -97,9 +132,11 @@ export function createStationHistoryApi(
     getStationOpenDate,
     getRenameEventOnDate,
     getStationFullHistory,
-    getEventsOnDate,
-    getNearestEvents,
+    getStationEventsOnDate,
+    getTimelineEventsOnDate,
+    getNearestTimelineEvents,
     stationEvents,
+    lineNameEvents,
     MIN_DATE: minDate,
     MAX_DATE: maxDate,
   };

@@ -1,8 +1,9 @@
 /**
  * 路線一覧とルーティング
  */
-import type { RouteData, StationHistoryApi, StationEvent } from './types';
+import type { LineNameEvent, RouteData, StationHistoryApi, StationEvent } from './types';
 import { createStationHistoryApi } from './routeUtils';
+import { buildLineNameEventsForRoute } from './lineNameHistory';
 import { stationEvents, MIN_DATE, MAX_DATE } from './stationHistory';
 import {
   chichibuStationEvents,
@@ -138,73 +139,70 @@ const ALL_MAX_DATE = [
   JR_TOHOKU_MAIN_MAX_DATE,
 ].reduce((latest, d) => (d > latest ? d : latest));
 
-const tojoApi: StationHistoryApi = createStationHistoryApi(stationEvents, MIN_DATE, MAX_DATE);
-const chichibuApi: StationHistoryApi = createStationHistoryApi(
-  chichibuStationEvents,
-  CHICHIBU_MIN_DATE,
-  CHICHIBU_MAX_DATE
-);
-const skytreeApi: StationHistoryApi = createStationHistoryApi(
-  skytreeStationEvents,
-  SKYTREE_MIN_DATE,
-  SKYTREE_MAX_DATE
-);
-const musashinoApi: StationHistoryApi = createStationHistoryApi(
-  musashinoStationEvents,
-  MUSASHINO_MIN_DATE,
-  MUSASHINO_MAX_DATE
-);
-const seibuIkebukuroApi: StationHistoryApi = createStationHistoryApi(
+function mergeRouteDateBounds(stationMin: string, stationMax: string, lineEvents: LineNameEvent[]) {
+  const dates = [stationMin, stationMax, ...lineEvents.map((e) => e.date)];
+  return {
+    min: dates.reduce((a, b) => (a < b ? a : b)),
+    max: dates.reduce((a, b) => (a > b ? a : b)),
+  };
+}
+
+function createTimedRouteApi(
+  routeId: string,
+  events: StationEvent[],
+  stationMin: string,
+  stationMax: string
+): StationHistoryApi {
+  const lineNameEvents = buildLineNameEventsForRoute(routeId, stationMin);
+  const { min, max } = mergeRouteDateBounds(stationMin, stationMax, lineNameEvents);
+  return createStationHistoryApi(events, min, max, lineNameEvents);
+}
+
+const tojoApi = createTimedRouteApi('tojo', stationEvents, MIN_DATE, MAX_DATE);
+const chichibuApi = createTimedRouteApi('chichibu', chichibuStationEvents, CHICHIBU_MIN_DATE, CHICHIBU_MAX_DATE);
+const skytreeApi = createTimedRouteApi('skytree', skytreeStationEvents, SKYTREE_MIN_DATE, SKYTREE_MAX_DATE);
+const musashinoApi = createTimedRouteApi('musashino', musashinoStationEvents, MUSASHINO_MIN_DATE, MUSASHINO_MAX_DATE);
+const seibuIkebukuroApi = createTimedRouteApi(
+  'seibuIkebukuro',
   seibuIkebukuroStationEvents,
   SEIBU_IKEBUKURO_MIN_DATE,
   SEIBU_IKEBUKURO_MAX_DATE
 );
-const seibuChichibuApi: StationHistoryApi = createStationHistoryApi(
+const seibuChichibuApi = createTimedRouteApi(
+  'seibuChichibu',
   seibuChichibuStationEvents,
   SEIBU_CHICHIBU_MIN_DATE,
   SEIBU_CHICHIBU_MAX_DATE
 );
-const seibuShinjukuApi: StationHistoryApi = createStationHistoryApi(
+const seibuShinjukuApi = createTimedRouteApi(
+  'seibuShinjuku',
   seibuShinjukuStationEvents,
   SEIBU_SHINJUKU_MIN_DATE,
   SEIBU_SHINJUKU_MAX_DATE
 );
-const seibuKokubunjiApi: StationHistoryApi = createStationHistoryApi(
+const seibuKokubunjiApi = createTimedRouteApi(
+  'seibuKokubunji',
   seibuKokubunjiStationEvents,
   SEIBU_KOKUBUNJI_MIN_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE
 );
-const seibuSayamaApi: StationHistoryApi = createStationHistoryApi(
+const seibuSayamaApi = createTimedRouteApi(
+  'seibuSayama',
   seibuSayamaStationEvents,
   SEIBU_SAYAMA_MIN_DATE,
   SEIBU_SAYAMA_MAX_DATE
 );
-const tobuNodaApi: StationHistoryApi = createStationHistoryApi(
-  tobuNodaStationEvents,
-  TOBU_NODA_MIN_DATE,
-  TOBU_NODA_MAX_DATE
-);
-const tobuOgoseApi: StationHistoryApi = createStationHistoryApi(
-  tobuOgoseStationEvents,
-  TOBU_OGOSE_MIN_DATE,
-  TOBU_OGOSE_MAX_DATE
-);
-const jrKawagoeApi: StationHistoryApi = createStationHistoryApi(
-  jrKawagoeStationEvents,
-  JR_KAWAGOE_MIN_DATE,
-  JR_KAWAGOE_MAX_DATE
-);
-const jrSaikyoApi: StationHistoryApi = createStationHistoryApi(
-  jrSaikyoStationEvents,
-  JR_SAIKYO_MIN_DATE,
-  JR_SAIKYO_MAX_DATE
-);
-const jrTohokuMainApi: StationHistoryApi = createStationHistoryApi(
+const tobuNodaApi = createTimedRouteApi('tobuNoda', tobuNodaStationEvents, TOBU_NODA_MIN_DATE, TOBU_NODA_MAX_DATE);
+const tobuOgoseApi = createTimedRouteApi('tobuOgose', tobuOgoseStationEvents, TOBU_OGOSE_MIN_DATE, TOBU_OGOSE_MAX_DATE);
+const jrKawagoeApi = createTimedRouteApi('jrKawagoe', jrKawagoeStationEvents, JR_KAWAGOE_MIN_DATE, JR_KAWAGOE_MAX_DATE);
+const jrSaikyoApi = createTimedRouteApi('jrSaikyo', jrSaikyoStationEvents, JR_SAIKYO_MIN_DATE, JR_SAIKYO_MAX_DATE);
+const jrTohokuMainApi = createTimedRouteApi(
+  'jrTohokuMain',
   jrTohokuMainStationEvents,
   JR_TOHOKU_MAIN_MIN_DATE,
   JR_TOHOKU_MAIN_MAX_DATE
 );
-const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE);
+const allApi: StationHistoryApi = createStationHistoryApi(allStationEvents, ALL_MIN_DATE, ALL_MAX_DATE, []);
 
 export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }> = {
   all: {
@@ -212,6 +210,7 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'all',
       name: '全路線',
       stationEvents: allStationEvents,
+      lineNameEvents: [],
       minDate: ALL_MIN_DATE,
       maxDate: ALL_MAX_DATE,
     },
@@ -222,8 +221,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'tojo',
       name: '東武東上線（池袋～寄居）',
       stationEvents,
-      minDate: MIN_DATE,
-      maxDate: MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('tojo', MIN_DATE),
+      minDate: tojoApi.MIN_DATE,
+      maxDate: tojoApi.MAX_DATE,
     },
     api: tojoApi,
   },
@@ -232,8 +232,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'chichibu',
       name: '秩父鉄道秩父本線（羽生～三峰口）',
       stationEvents: chichibuStationEvents,
-      minDate: CHICHIBU_MIN_DATE,
-      maxDate: CHICHIBU_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('chichibu', CHICHIBU_MIN_DATE),
+      minDate: chichibuApi.MIN_DATE,
+      maxDate: chichibuApi.MAX_DATE,
     },
     api: chichibuApi,
   },
@@ -242,8 +243,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'skytree',
       name: '東武スカイツリーライン（浅草～東武動物公園）',
       stationEvents: skytreeStationEvents,
-      minDate: SKYTREE_MIN_DATE,
-      maxDate: SKYTREE_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('skytree', SKYTREE_MIN_DATE),
+      minDate: skytreeApi.MIN_DATE,
+      maxDate: skytreeApi.MAX_DATE,
     },
     api: skytreeApi,
   },
@@ -252,8 +254,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'musashino',
       name: 'JR武蔵野線（府中本町～西船橋）',
       stationEvents: musashinoStationEvents,
-      minDate: MUSASHINO_MIN_DATE,
-      maxDate: MUSASHINO_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('musashino', MUSASHINO_MIN_DATE),
+      minDate: musashinoApi.MIN_DATE,
+      maxDate: musashinoApi.MAX_DATE,
     },
     api: musashinoApi,
   },
@@ -262,8 +265,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'seibuIkebukuro',
       name: '西武池袋線（池袋～吾野）',
       stationEvents: seibuIkebukuroStationEvents,
-      minDate: SEIBU_IKEBUKURO_MIN_DATE,
-      maxDate: SEIBU_IKEBUKURO_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('seibuIkebukuro', SEIBU_IKEBUKURO_MIN_DATE),
+      minDate: seibuIkebukuroApi.MIN_DATE,
+      maxDate: seibuIkebukuroApi.MAX_DATE,
     },
     api: seibuIkebukuroApi,
   },
@@ -272,8 +276,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'seibuChichibu',
       name: '西武秩父線（吾野～西武秩父）',
       stationEvents: seibuChichibuStationEvents,
-      minDate: SEIBU_CHICHIBU_MIN_DATE,
-      maxDate: SEIBU_CHICHIBU_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('seibuChichibu', SEIBU_CHICHIBU_MIN_DATE),
+      minDate: seibuChichibuApi.MIN_DATE,
+      maxDate: seibuChichibuApi.MAX_DATE,
     },
     api: seibuChichibuApi,
   },
@@ -282,8 +287,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'seibuShinjuku',
       name: '西武新宿線（西武新宿～本川越）',
       stationEvents: seibuShinjukuStationEvents,
-      minDate: SEIBU_SHINJUKU_MIN_DATE,
-      maxDate: SEIBU_SHINJUKU_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('seibuShinjuku', SEIBU_SHINJUKU_MIN_DATE),
+      minDate: seibuShinjukuApi.MIN_DATE,
+      maxDate: seibuShinjukuApi.MAX_DATE,
     },
     api: seibuShinjukuApi,
   },
@@ -292,8 +298,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'seibuKokubunji',
       name: '西武国分寺線（国分寺～東村山）',
       stationEvents: seibuKokubunjiStationEvents,
-      minDate: SEIBU_KOKUBUNJI_MIN_DATE,
-      maxDate: SEIBU_KOKUBUNJI_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('seibuKokubunji', SEIBU_KOKUBUNJI_MIN_DATE),
+      minDate: seibuKokubunjiApi.MIN_DATE,
+      maxDate: seibuKokubunjiApi.MAX_DATE,
     },
     api: seibuKokubunjiApi,
   },
@@ -302,8 +309,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'seibuSayama',
       name: '西武狭山線（西所沢～西武球場前）',
       stationEvents: seibuSayamaStationEvents,
-      minDate: SEIBU_SAYAMA_MIN_DATE,
-      maxDate: SEIBU_SAYAMA_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('seibuSayama', SEIBU_SAYAMA_MIN_DATE),
+      minDate: seibuSayamaApi.MIN_DATE,
+      maxDate: seibuSayamaApi.MAX_DATE,
     },
     api: seibuSayamaApi,
   },
@@ -312,8 +320,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'tobuNoda',
       name: '東武野田線・アーバンパークライン（大宮～船橋）',
       stationEvents: tobuNodaStationEvents,
-      minDate: TOBU_NODA_MIN_DATE,
-      maxDate: TOBU_NODA_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('tobuNoda', TOBU_NODA_MIN_DATE),
+      minDate: tobuNodaApi.MIN_DATE,
+      maxDate: tobuNodaApi.MAX_DATE,
     },
     api: tobuNodaApi,
   },
@@ -322,8 +331,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'tobuOgose',
       name: '東武越生線（坂戸～越生）',
       stationEvents: tobuOgoseStationEvents,
-      minDate: TOBU_OGOSE_MIN_DATE,
-      maxDate: TOBU_OGOSE_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('tobuOgose', TOBU_OGOSE_MIN_DATE),
+      minDate: tobuOgoseApi.MIN_DATE,
+      maxDate: tobuOgoseApi.MAX_DATE,
     },
     api: tobuOgoseApi,
   },
@@ -332,8 +342,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'jrKawagoe',
       name: 'JR川越線（大宮～高麗川）',
       stationEvents: jrKawagoeStationEvents,
-      minDate: JR_KAWAGOE_MIN_DATE,
-      maxDate: JR_KAWAGOE_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('jrKawagoe', JR_KAWAGOE_MIN_DATE),
+      minDate: jrKawagoeApi.MIN_DATE,
+      maxDate: jrKawagoeApi.MAX_DATE,
     },
     api: jrKawagoeApi,
   },
@@ -342,8 +353,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'jrSaikyo',
       name: 'JR埼京線（大崎～大宮）',
       stationEvents: jrSaikyoStationEvents,
-      minDate: JR_SAIKYO_MIN_DATE,
-      maxDate: JR_SAIKYO_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('jrSaikyo', JR_SAIKYO_MIN_DATE),
+      minDate: jrSaikyoApi.MIN_DATE,
+      maxDate: jrSaikyoApi.MAX_DATE,
     },
     api: jrSaikyoApi,
   },
@@ -352,8 +364,9 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
       id: 'jrTohokuMain',
       name: 'JR東北本線（東京～黒磯）',
       stationEvents: jrTohokuMainStationEvents,
-      minDate: JR_TOHOKU_MAIN_MIN_DATE,
-      maxDate: JR_TOHOKU_MAIN_MAX_DATE,
+      lineNameEvents: buildLineNameEventsForRoute('jrTohokuMain', JR_TOHOKU_MAIN_MIN_DATE),
+      minDate: jrTohokuMainApi.MIN_DATE,
+      maxDate: jrTohokuMainApi.MAX_DATE,
     },
     api: jrTohokuMainApi,
   },
