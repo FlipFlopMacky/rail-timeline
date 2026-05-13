@@ -3,7 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { StationHistoryApi, TimelineEvent } from '../data/types';
+import type { RouteId } from '../data/routes';
 import { getJapaneseHistoryForYear } from '../data/japaneseHistory';
+import { getStationExternalLinks } from '../data/stationExternalLinks';
 
 function esc(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -150,6 +152,7 @@ function MapBounds({
 
 interface TimelineMapProps {
   routeApi: StationHistoryApi;
+  routeId: RouteId;
   /** 全路線モードで各路線ごとに線を描画する場合のAPI配列 */
   routeApisForPolylines?: StationHistoryApi[];
   /** 単一路線表示時の線・駅ドット色 */
@@ -160,6 +163,7 @@ interface TimelineMapProps {
 
 export function TimelineMap({
   routeApi,
+  routeId,
   routeApisForPolylines,
   lineColor,
   polylineColors,
@@ -387,6 +391,7 @@ export function TimelineMap({
             const openDate = routeApi.getStationOpenDate(station.lat, station.lon);
             const isJustBorn = openDate === currentDate;
             const renameOnDate = routeApi.getRenameEventOnDate(station.lat, station.lon, currentDate);
+            const { wikipediaUrl, officialUrl } = getStationExternalLinks(routeId, station.name);
             return (
               <Marker
                 key={`${station.lat}-${station.lon}-${station.name}`}
@@ -395,7 +400,34 @@ export function TimelineMap({
               >
                 <Popup>
                   <div className="popup-station">
-                    <strong className="popup-station-name">{station.name}</strong>
+                    <div className="popup-station-header">
+                      <strong className="popup-station-name">{station.name}</strong>
+                      <span className="popup-station-links">
+                        {officialUrl ? (
+                          <>
+                            <a
+                              href={officialUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="popup-station-link"
+                            >
+                              公式
+                            </a>
+                            <span className="popup-station-links-sep" aria-hidden="true">
+                              ·
+                            </span>
+                          </>
+                        ) : null}
+                        <a
+                          href={wikipediaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="popup-station-link"
+                        >
+                          Wikipedia
+                        </a>
+                      </span>
+                    </div>
                     <div className="popup-station-history">
                       <div className="popup-station-history-title">駅の歴史</div>
                       <ul className="popup-station-history-list">

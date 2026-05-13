@@ -37,6 +37,7 @@ function App() {
       <main className="map-container">
         <TimelineMap
           routeApi={api}
+          routeId={routeId}
           routeApisForPolylines={routeId === 'all' ? INDIVIDUAL_ROUTE_APIS : undefined}
           polylineColors={routeId === 'all' ? INDIVIDUAL_ROUTE_LINE_COLORS : undefined}
           lineColor={routeId !== 'all' ? ROUTE_LINE_COLORS[routeId] : undefined}

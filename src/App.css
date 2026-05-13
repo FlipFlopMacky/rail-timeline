@@ -407,10 +407,36 @@
   min-width: 200px;
 }
 
-.popup-station-name {
-  display: block;
+.popup-station-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.popup-station-name {
   font-size: 1.1rem;
+}
+
+.popup-station-links {
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.popup-station-links-sep {
+  margin: 0 0.15rem;
+  color: #94a3b8;
+}
+
+.popup-station-link {
+  color: #0369a1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.popup-station-link:hover {
+  color: #0ea5e9;
 }
 
 .popup-station-history-title {
