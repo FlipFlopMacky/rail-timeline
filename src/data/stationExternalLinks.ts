@@ -2,10 +2,37 @@
  * 駅ポップアップ用の外部リンク（Wikipedia・事業者公式）
  * 西武: https://www.seiburailway.jp/railway/station/{slug}/
  * 東武: https://www.tobu.co.jp/railway/guide/station/info/{駅コード}/ （乗降人員ページのリンクと同一。東上線は routeId `tojo`）
- * 他社・未整備は officialUrl null（Wikipediaのみ）。
+ * 他社・未整備路線は officialLinks 空（Wikipediaのみ）。
  */
 
-import type { RouteId } from './routes';
+import type { StationHistoryApi } from './types';
+import { ROUTES, type RouteId } from './routes';
+
+type IndividualRouteId = Exclude<RouteId, 'all'>;
+
+function stationCoordKey(lat: number, lon: number): string {
+  return `${lat.toFixed(5)},${lon.toFixed(5)}`;
+}
+
+/** 指定日・座標が含まれる個別路線（全路線モード用。定義順に走査） */
+function individualRouteIdsContainingStation(
+  lat: number,
+  lon: number,
+  dateStr: string,
+  individualApis: StationHistoryApi[],
+  individualRouteIds: readonly IndividualRouteId[]
+): IndividualRouteId[] {
+  if (individualApis.length !== individualRouteIds.length) return [];
+  const k = stationCoordKey(lat, lon);
+  const matched: IndividualRouteId[] = [];
+  for (let i = 0; i < individualApis.length; i++) {
+    const stations = individualApis[i].getStationsAtDate(dateStr);
+    if (stations.some((s) => stationCoordKey(s.lat, s.lon) === k)) {
+      matched.push(individualRouteIds[i]);
+    }
+  }
+  return matched;
+}
 
 const SEIBU_STATION_SLUGS: Record<string, string> = {
   池袋: 'ikebukuro',
@@ -215,24 +242,62 @@ function tobuOfficialStationUrl(stationName: string): string | null {
   return `https://www.tobu.co.jp/railway/guide/station/info/${code}/`;
 }
 
+function officialUrlForIndividualRoute(routeId: IndividualRouteId, stationName: string): string | null {
+  if (routeId.startsWith('seibu')) return seibuOfficialStationUrl(stationName);
+  if (routeId.startsWith('tobu') || routeId === 'tojo') return tobuOfficialStationUrl(stationName);
+  return null;
+}
+
+export type OfficialStationLink = { label: string; url: string };
+
 export type StationExternalLinks = {
   wikipediaUrl: string;
-  officialUrl: string | null;
+  /** 公式ページ。全路線時は路線名入りラベルで複数可 */
+  officialLinks: OfficialStationLink[];
+};
+
+export type AllModeStationLinkContext = {
+  currentDate: string;
+  lat: number;
+  lon: number;
+  individualApis: StationHistoryApi[];
+  individualRouteIds: readonly IndividualRouteId[];
 };
 
 /**
- * @param routeId `routes` のキー（`all` のときは公式URLは出さない）
+ * @param routeId `routes` のキー
+ * @param allMode 路線が「全路線」のとき、座標で所属路線を判定して公式リンクを付ける
  */
-export function getStationExternalLinks(routeId: RouteId, stationName: string): StationExternalLinks {
+export function getStationExternalLinks(
+  routeId: RouteId,
+  stationName: string,
+  allMode?: AllModeStationLinkContext
+): StationExternalLinks {
   const wikipediaUrl = wikipediaJaStationUrl(stationName);
+
+  if (routeId === 'all' && allMode) {
+    const { currentDate, lat, lon, individualApis, individualRouteIds } = allMode;
+    const routeIds = individualRouteIdsContainingStation(lat, lon, currentDate, individualApis, individualRouteIds);
+    const officialLinks: OfficialStationLink[] = [];
+    for (const rId of routeIds) {
+      const url = officialUrlForIndividualRoute(rId, stationName);
+      if (url) {
+        officialLinks.push({
+          label: `${ROUTES[rId].data.name}（公式）`,
+          url,
+        });
+      }
+    }
+    return { wikipediaUrl, officialLinks };
+  }
+
   if (routeId === 'all') {
-    return { wikipediaUrl, officialUrl: null };
+    return { wikipediaUrl, officialLinks: [] };
   }
-  if (routeId.startsWith('seibu')) {
-    return { wikipediaUrl, officialUrl: seibuOfficialStationUrl(stationName) };
-  }
-  if (routeId.startsWith('tobu') || routeId === 'tojo') {
-    return { wikipediaUrl, officialUrl: tobuOfficialStationUrl(stationName) };
-  }
-  return { wikipediaUrl, officialUrl: null };
+
+  const url = officialUrlForIndividualRoute(routeId, stationName);
+  return {
+    wikipediaUrl,
+    officialLinks: url ? [{ label: '公式', url }] : [],
+  };
 }

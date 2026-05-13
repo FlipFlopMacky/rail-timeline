@@ -439,6 +439,12 @@
   color: #0ea5e9;
 }
 
+.popup-station-link--route {
+  max-width: 16rem;
+  line-height: 1.35;
+  font-size: 0.72rem;
+}
+
 .popup-station-history-title {
   font-size: 0.75rem;
   color: #64748b;

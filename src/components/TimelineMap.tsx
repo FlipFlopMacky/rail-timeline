@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, Fragment } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { StationHistoryApi, TimelineEvent } from '../data/types';
-import type { RouteId } from '../data/routes';
+import { ROUTE_DROPDOWN_ORDER, type RouteId } from '../data/routes';
 import { getJapaneseHistoryForYear } from '../data/japaneseHistory';
 import { getStationExternalLinks } from '../data/stationExternalLinks';
 
@@ -391,7 +391,16 @@ export function TimelineMap({
             const openDate = routeApi.getStationOpenDate(station.lat, station.lon);
             const isJustBorn = openDate === currentDate;
             const renameOnDate = routeApi.getRenameEventOnDate(station.lat, station.lon, currentDate);
-            const { wikipediaUrl, officialUrl } = getStationExternalLinks(routeId, station.name);
+            const { wikipediaUrl, officialLinks } =
+              routeId === 'all' && routeApisForPolylines
+                ? getStationExternalLinks('all', station.name, {
+                    currentDate,
+                    lat: station.lat,
+                    lon: station.lon,
+                    individualApis: routeApisForPolylines,
+                    individualRouteIds: ROUTE_DROPDOWN_ORDER,
+                  })
+                : getStationExternalLinks(routeId, station.name);
             return (
               <Marker
                 key={`${station.lat}-${station.lon}-${station.name}`}
@@ -403,20 +412,27 @@ export function TimelineMap({
                     <div className="popup-station-header">
                       <strong className="popup-station-name">{station.name}</strong>
                       <span className="popup-station-links">
-                        {officialUrl ? (
-                          <>
+                        {officialLinks.map((link, i) => (
+                          <Fragment key={`${i}-${link.url}`}>
+                            {i > 0 ? (
+                              <span className="popup-station-links-sep" aria-hidden="true">
+                                ·
+                              </span>
+                            ) : null}
                             <a
-                              href={officialUrl}
+                              href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="popup-station-link"
+                              className={`popup-station-link${routeId === 'all' ? ' popup-station-link--route' : ''}`}
                             >
-                              公式
+                              {link.label}
                             </a>
-                            <span className="popup-station-links-sep" aria-hidden="true">
-                              ·
-                            </span>
-                          </>
+                          </Fragment>
+                        ))}
+                        {officialLinks.length > 0 ? (
+                          <span className="popup-station-links-sep" aria-hidden="true">
+                            ·
+                          </span>
                         ) : null}
                         <a
                           href={wikipediaUrl}
