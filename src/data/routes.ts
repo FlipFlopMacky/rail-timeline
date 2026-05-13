@@ -40,6 +40,11 @@ import {
   SEIBU_KOKUBUNJI_MAX_DATE,
 } from './seibuKokubunjiStationHistory';
 import {
+  seibuSayamaStationEvents,
+  SEIBU_SAYAMA_MIN_DATE,
+  SEIBU_SAYAMA_MAX_DATE,
+} from './seibuSayamaStationHistory';
+import {
   tobuNodaStationEvents,
   TOBU_NODA_MIN_DATE,
   TOBU_NODA_MAX_DATE,
@@ -75,6 +80,7 @@ const ORDER_OFFSET = {
   seibuChichibu: 5000,
   seibuShinjuku: 6000,
   seibuKokubunji: 7000,
+  seibuSayama: 13000,
   tobuNoda: 8000,
   tobuOgose: 12000,
   jrKawagoe: 9000,
@@ -90,6 +96,7 @@ const allStationEvents: StationEvent[] = [
   ...seibuChichibuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuChichibu })),
   ...seibuShinjukuStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuShinjuku })),
   ...seibuKokubunjiStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuKokubunji })),
+  ...seibuSayamaStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.seibuSayama })),
   ...tobuNodaStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuNoda })),
   ...tobuOgoseStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.tobuOgose })),
   ...jrKawagoeStationEvents.map((e) => ({ ...e, order: e.order + ORDER_OFFSET.jrKawagoe })),
@@ -107,6 +114,7 @@ const ALL_MIN_DATE = [
   SEIBU_CHICHIBU_MIN_DATE,
   SEIBU_SHINJUKU_MIN_DATE,
   SEIBU_KOKUBUNJI_MIN_DATE,
+  SEIBU_SAYAMA_MIN_DATE,
   TOBU_NODA_MIN_DATE,
   TOBU_OGOSE_MIN_DATE,
   JR_KAWAGOE_MIN_DATE,
@@ -122,6 +130,7 @@ const ALL_MAX_DATE = [
   SEIBU_CHICHIBU_MAX_DATE,
   SEIBU_SHINJUKU_MAX_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE,
+  SEIBU_SAYAMA_MAX_DATE,
   TOBU_NODA_MAX_DATE,
   TOBU_OGOSE_MAX_DATE,
   JR_KAWAGOE_MAX_DATE,
@@ -165,6 +174,11 @@ const seibuKokubunjiApi: StationHistoryApi = createStationHistoryApi(
   SEIBU_KOKUBUNJI_MIN_DATE,
   SEIBU_KOKUBUNJI_MAX_DATE
 );
+const seibuSayamaApi: StationHistoryApi = createStationHistoryApi(
+  seibuSayamaStationEvents,
+  SEIBU_SAYAMA_MIN_DATE,
+  SEIBU_SAYAMA_MAX_DATE
+);
 const tobuNodaApi: StationHistoryApi = createStationHistoryApi(
   tobuNodaStationEvents,
   TOBU_NODA_MIN_DATE,
@@ -206,7 +220,7 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
   tojo: {
     data: {
       id: 'tojo',
-      name: '東武東上線',
+      name: '東武東上線（池袋～寄居）',
       stationEvents,
       minDate: MIN_DATE,
       maxDate: MAX_DATE,
@@ -216,7 +230,7 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
   chichibu: {
     data: {
       id: 'chichibu',
-      name: '秩父鉄道秩父本線',
+      name: '秩父鉄道秩父本線（羽生～三峰口）',
       stationEvents: chichibuStationEvents,
       minDate: CHICHIBU_MIN_DATE,
       maxDate: CHICHIBU_MAX_DATE,
@@ -226,7 +240,7 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
   skytree: {
     data: {
       id: 'skytree',
-      name: '東武スカイツリーライン',
+      name: '東武スカイツリーライン（浅草～東武動物公園）',
       stationEvents: skytreeStationEvents,
       minDate: SKYTREE_MIN_DATE,
       maxDate: SKYTREE_MAX_DATE,
@@ -283,10 +297,20 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
     },
     api: seibuKokubunjiApi,
   },
+  seibuSayama: {
+    data: {
+      id: 'seibuSayama',
+      name: '西武狭山線（西所沢～西武球場前）',
+      stationEvents: seibuSayamaStationEvents,
+      minDate: SEIBU_SAYAMA_MIN_DATE,
+      maxDate: SEIBU_SAYAMA_MAX_DATE,
+    },
+    api: seibuSayamaApi,
+  },
   tobuNoda: {
     data: {
       id: 'tobuNoda',
-      name: '東武野田線（大宮～船橋）',
+      name: '東武野田線・アーバンパークライン（大宮～船橋）',
       stationEvents: tobuNodaStationEvents,
       minDate: TOBU_NODA_MIN_DATE,
       maxDate: TOBU_NODA_MAX_DATE,
@@ -337,6 +361,27 @@ export const ROUTES: Record<string, { data: RouteData; api: StationHistoryApi }>
 
 export type RouteId = keyof typeof ROUTES;
 
+/**
+ * 路線セレクト・全路線モードのポリライン順（`all` を除く）。
+ * 東武 → 西武（路線名五十音）→ JR（五十音）→ 秩父鉄道
+ */
+export const ROUTE_DROPDOWN_ORDER: Exclude<RouteId, 'all'>[] = [
+  'tojo',
+  'skytree',
+  'tobuNoda',
+  'tobuOgose',
+  'seibuIkebukuro',
+  'seibuKokubunji',
+  'seibuSayama',
+  'seibuShinjuku',
+  'seibuChichibu',
+  'jrKawagoe',
+  'jrSaikyo',
+  'jrTohokuMain',
+  'musashino',
+  'chichibu',
+];
+
 /** 地図のポリライン・駅ドット用（各路線の案内色・イメージに近い色） */
 export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
   tojo: '#ED6C00',
@@ -347,6 +392,7 @@ export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
   seibuChichibu: '#E8B500',
   seibuShinjuku: '#00A9E0',
   seibuKokubunji: '#E7578A',
+  seibuSayama: '#E85298',
   tobuNoda: '#00A857',
   tobuOgose: '#C45C1A',
   jrKawagoe: '#7AC940',
@@ -354,41 +400,10 @@ export const ROUTE_LINE_COLORS: Record<Exclude<RouteId, 'all'>, string> = {
   jrTohokuMain: '#F68B1F',
 };
 
-export const ROUTE_IDS: RouteId[] = [
-  'all',
-  'tojo',
-  'chichibu',
-  'skytree',
-  'musashino',
-  'seibuIkebukuro',
-  'seibuChichibu',
-  'seibuShinjuku',
-  'seibuKokubunji',
-  'tobuNoda',
-  'tobuOgose',
-  'jrKawagoe',
-  'jrSaikyo',
-  'jrTohokuMain',
-];
+export const ROUTE_IDS: RouteId[] = ['all', ...ROUTE_DROPDOWN_ORDER];
 
 /** `INDIVIDUAL_ROUTE_APIS` と同じ並びの線色（全路線モードのポリライン用） */
-export const INDIVIDUAL_ROUTE_LINE_COLORS: string[] = (
-  ROUTE_IDS.filter((id): id is Exclude<RouteId, 'all'> => id !== 'all') as Exclude<RouteId, 'all'>[]
-).map((id) => ROUTE_LINE_COLORS[id]);
+export const INDIVIDUAL_ROUTE_LINE_COLORS: string[] = ROUTE_DROPDOWN_ORDER.map((id) => ROUTE_LINE_COLORS[id]);
 
 /** 全路線モードで各路線ごとに線を描画するためのAPI配列 */
-export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = [
-  tojoApi,
-  chichibuApi,
-  skytreeApi,
-  musashinoApi,
-  seibuIkebukuroApi,
-  seibuChichibuApi,
-  seibuShinjukuApi,
-  seibuKokubunjiApi,
-  tobuNodaApi,
-  tobuOgoseApi,
-  jrKawagoeApi,
-  jrSaikyoApi,
-  jrTohokuMainApi,
-];
+export const INDIVIDUAL_ROUTE_APIS: StationHistoryApi[] = ROUTE_DROPDOWN_ORDER.map((id) => ROUTES[id].api);

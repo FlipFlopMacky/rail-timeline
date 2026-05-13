@@ -3,6 +3,7 @@ import './App.css';
 import { TimelineMap } from './components/TimelineMap';
 import {
   ROUTES,
+  ROUTE_IDS,
   INDIVIDUAL_ROUTE_APIS,
   INDIVIDUAL_ROUTE_LINE_COLORS,
   ROUTE_LINE_COLORS,
@@ -25,20 +26,11 @@ function App() {
             onChange={(e) => setRouteId(e.target.value as RouteId)}
             className="route-select"
           >
-            <option value="all">全路線</option>
-            <option value="tojo">東武東上線（池袋～寄居）</option>
-            <option value="chichibu">秩父鉄道秩父本線（羽生～三峰口）</option>
-            <option value="skytree">東武スカイツリーライン（浅草～東武動物公園）</option>
-            <option value="musashino">JR武蔵野線（府中本町～西船橋）</option>
-            <option value="seibuIkebukuro">西武池袋線（池袋～吾野）</option>
-            <option value="seibuChichibu">西武秩父線（吾野～西武秩父）</option>
-            <option value="seibuShinjuku">西武新宿線（西武新宿～本川越）</option>
-            <option value="seibuKokubunji">西武国分寺線（国分寺～東村山）</option>
-            <option value="tobuNoda">東武野田線・アーバンパークライン（大宮～船橋）</option>
-            <option value="tobuOgose">東武越生線（坂戸～越生）</option>
-            <option value="jrKawagoe">JR川越線（大宮～高麗川）</option>
-            <option value="jrSaikyo">JR埼京線（大崎～大宮）</option>
-            <option value="jrTohokuMain">JR東北本線（東京～黒磯）</option>
+            {ROUTE_IDS.map((id) => (
+              <option key={id} value={id}>
+                {ROUTES[id].data.name}
+              </option>
+            ))}
           </select>
         </div>
       </header>
