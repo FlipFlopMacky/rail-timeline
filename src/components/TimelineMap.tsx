@@ -391,6 +391,7 @@ export function TimelineMap({
             const openDate = routeApi.getStationOpenDate(station.lat, station.lon);
             const isJustBorn = openDate === currentDate;
             const renameOnDate = routeApi.getRenameEventOnDate(station.lat, station.lon, currentDate);
+            const stationPos = { lat: station.lat, lon: station.lon };
             const { wikipediaUrl, officialLinks } =
               routeId === 'all' && routeApisForPolylines
                 ? getStationExternalLinks('all', station.name, {
@@ -400,7 +401,7 @@ export function TimelineMap({
                     individualApis: routeApisForPolylines,
                     individualRouteIds: ROUTE_DROPDOWN_ORDER,
                   })
-                : getStationExternalLinks(routeId, station.name);
+                : getStationExternalLinks(routeId, station.name, undefined, stationPos);
             return (
               <Marker
                 key={`${station.lat}-${station.lon}-${station.name}`}

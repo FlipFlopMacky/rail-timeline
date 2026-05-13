@@ -1,7 +1,7 @@
 /**
  * 駅ポップアップ用の外部リンク（Wikipedia・事業者公式）
  * 西武: https://www.seiburailway.jp/railway/station/{slug}/
- * 東武: https://www.tobu.co.jp/railway/guide/station/info/{駅コード}/ （乗降人員ページのリンクと同一。東上線は routeId `tojo`）
+ * 東武: https://www.tobu.co.jp/railway/guide/station/info/{駅コード}/ （東上・スカイツリー・野田・越生。東上線は routeId `tojo`）
  * 他社・未整備路線は officialLinks 空（Wikipediaのみ）。
  */
 
@@ -122,7 +122,7 @@ const SEIBU_STATION_SLUGS: Record<string, string> = {
   西武球場前: 'seibukyujo-mae',
 };
 
-/** 東武公式サイトの駅ページ用コード（東上・野田・越生。改称前の旧名もキーに） */
+/** 東武公式サイトの駅ページ用コード（東上・スカイツリー・野田・越生。改称前の旧名もキーに） */
 const TOBU_STATION_CODES: Record<string, string> = {
   // 東上線（池袋～寄居）
   池袋: '7105',
@@ -176,6 +176,41 @@ const TOBU_STATION_CODES: Record<string, string> = {
   鉢形: '7507',
   玉淀: '7508',
   寄居: '7512',
+  // スカイツリーライン（伊勢崎線 浅草～東武動物公園）。浅草・越ヶ谷は座標で tobuOfficialStationUrl 側で振り分け
+  吾妻橋: '1103',
+  業平橋: '1103',
+  とうきょうスカイツリー: '1103',
+  押上: '1120',
+  曳舟: '1104',
+  東向島: '1106',
+  玉ノ井: '1106',
+  鐘ヶ淵: '1107',
+  堀切: '1108',
+  小菅: '1301',
+  牛田: '1110',
+  北千住: '1204',
+  五反野: '1302',
+  梅島: '1303',
+  西新井: '1304',
+  竹ノ塚: '1306',
+  谷塚: '1401',
+  草加: '1402',
+  獨協大学前: '1404',
+  松原団地: '1404',
+  新田: '1405',
+  蒲生: '1406',
+  新越谷: '1408',
+  越谷: '1409',
+  北越谷: '1410',
+  武州大沢: '1410',
+  粕壁: '1505',
+  せんげん台: '1502',
+  大袋: '1501',
+  武里: '1503',
+  一ノ割: '1504',
+  北春日部: '1507',
+  東武動物公園: '1509',
+  杉戸: '1509',
   // 野田線（アーバンパークライン）系
   大宮: '6102',
   北大宮: '6103',
@@ -236,15 +271,51 @@ function seibuOfficialStationUrl(stationName: string): string | null {
   return `https://www.seiburailway.jp/railway/station/${slug}/`;
 }
 
-function tobuOfficialStationUrl(stationName: string): string | null {
-  const code = TOBU_STATION_CODES[stationName];
-  if (!code) return null;
+function tobuInfoUrl(code: string): string {
   return `https://www.tobu.co.jp/railway/guide/station/info/${code}/`;
 }
 
-function officialUrlForIndividualRoute(routeId: IndividualRouteId, stationName: string): string | null {
+/** 座標付き時のみ判別できる駅（浅草が2地点・越ヶ谷が2系統あった時期） */
+function tobuOfficialStationUrlByPosition(
+  stationName: string,
+  position: { lat: number; lon: number }
+): string | null {
+  const k = stationCoordKey(position.lat, position.lon);
+  if (stationName === '浅草') {
+    if (k === stationCoordKey(35.710508, 139.797568)) return tobuInfoUrl('1102');
+    if (k === stationCoordKey(35.710439, 139.809325)) return tobuInfoUrl('1103');
+    return null;
+  }
+  if (stationName === '越ヶ谷') {
+    if (k === stationCoordKey(35.901994, 139.779889)) return tobuInfoUrl('1410');
+    if (k === stationCoordKey(35.888307, 139.785917)) return tobuInfoUrl('1409');
+    return null;
+  }
+  return null;
+}
+
+function tobuOfficialStationUrl(
+  stationName: string,
+  position?: { lat: number; lon: number }
+): string | null {
+  if (position && (stationName === '浅草' || stationName === '越ヶ谷')) {
+    const byPos = tobuOfficialStationUrlByPosition(stationName, position);
+    if (byPos) return byPos;
+  }
+  const code = TOBU_STATION_CODES[stationName];
+  if (!code) return null;
+  return tobuInfoUrl(code);
+}
+
+function officialUrlForIndividualRoute(
+  routeId: IndividualRouteId,
+  stationName: string,
+  stationPosition?: { lat: number; lon: number }
+): string | null {
   if (routeId.startsWith('seibu')) return seibuOfficialStationUrl(stationName);
-  if (routeId.startsWith('tobu') || routeId === 'tojo') return tobuOfficialStationUrl(stationName);
+  if (routeId.startsWith('tobu') || routeId === 'tojo' || routeId === 'skytree') {
+    return tobuOfficialStationUrl(stationName, stationPosition);
+  }
   return null;
 }
 
@@ -266,21 +337,23 @@ export type AllModeStationLinkContext = {
 
 /**
  * @param routeId `routes` のキー
- * @param allMode 路線が「全路線」のとき、座標で所属路線を判定して公式リンクを付ける
+ * @param stationPosition 東武系で同名駅のURLを分けるため（例: 浅草・越ヶ谷）
  */
 export function getStationExternalLinks(
   routeId: RouteId,
   stationName: string,
-  allMode?: AllModeStationLinkContext
+  allMode?: AllModeStationLinkContext,
+  stationPosition?: { lat: number; lon: number }
 ): StationExternalLinks {
   const wikipediaUrl = wikipediaJaStationUrl(stationName);
 
   if (routeId === 'all' && allMode) {
     const { currentDate, lat, lon, individualApis, individualRouteIds } = allMode;
     const routeIds = individualRouteIdsContainingStation(lat, lon, currentDate, individualApis, individualRouteIds);
+    const pos = { lat, lon };
     const officialLinks: OfficialStationLink[] = [];
     for (const rId of routeIds) {
-      const url = officialUrlForIndividualRoute(rId, stationName);
+      const url = officialUrlForIndividualRoute(rId, stationName, pos);
       if (url) {
         officialLinks.push({
           label: `${ROUTES[rId].data.name}（公式）`,
@@ -295,7 +368,7 @@ export function getStationExternalLinks(
     return { wikipediaUrl, officialLinks: [] };
   }
 
-  const url = officialUrlForIndividualRoute(routeId, stationName);
+  const url = officialUrlForIndividualRoute(routeId, stationName, stationPosition);
   return {
     wikipediaUrl,
     officialLinks: url ? [{ label: '公式', url }] : [],
