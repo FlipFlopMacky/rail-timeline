@@ -1,7 +1,8 @@
 /**
  * 駅ポップアップ用の外部リンク（Wikipedia・事業者公式）
- * 西武は https://www.seiburailway.jp/railway/station/{slug}/ のスラッグを駅名で引く。
- * 他社は公式の駅別URL規則が路線ごとに異なるため、未整備時は null（Wikipediaのみ表示）。
+ * 西武: https://www.seiburailway.jp/railway/station/{slug}/
+ * 東武: https://www.tobu.co.jp/railway/guide/station/info/{駅コード}/ （乗降人員ページのリンクと同一。東上線は routeId `tojo`）
+ * 他社・未整備は officialUrl null（Wikipediaのみ）。
  */
 
 import type { RouteId } from './routes';
@@ -94,6 +95,109 @@ const SEIBU_STATION_SLUGS: Record<string, string> = {
   西武球場前: 'seibukyujo-mae',
 };
 
+/** 東武公式サイトの駅ページ用コード（東上・野田・越生。改称前の旧名もキーに） */
+const TOBU_STATION_CODES: Record<string, string> = {
+  // 東上線（池袋～寄居）
+  池袋: '7105',
+  北池袋: '7201',
+  下板橋: '7202',
+  大山: '7203',
+  中板橋: '7204',
+  ときわ台: '7205',
+  武蔵常盤: '7205',
+  上板橋: '7206',
+  東武練馬: '7207',
+  下赤塚: '7208',
+  成増: '7209',
+  和光市: '7304',
+  にいくら: '7304',
+  新倉: '7304',
+  大和町: '7304',
+  朝霞: '7305',
+  膝折: '7305',
+  朝霞台: '7307',
+  志木: '7308',
+  みずほ台: '7309',
+  柳瀬川: '7320',
+  鶴瀬: '7310',
+  ふじみ野: '7311',
+  上福岡: '7312',
+  新河岸: '7313',
+  高階: '7313',
+  川越: '7315',
+  川越西町: '7315',
+  川越市: '7316',
+  川越町: '7316',
+  霞ヶ関: '7401',
+  的場: '7401',
+  鶴ヶ島: '7402',
+  若葉: '7403',
+  坂戸: '7404',
+  坂戸町: '7404',
+  北坂戸: '7406',
+  高坂: '7407',
+  東松山: '7408',
+  武州松山: '7408',
+  森林公園: '7409',
+  つきのわ: '7410',
+  武蔵嵐山: '7501',
+  菅谷: '7501',
+  小川町: '7504',
+  東武竹沢: '7505',
+  みなみ寄居: '7513',
+  男衾: '7506',
+  鉢形: '7507',
+  玉淀: '7508',
+  寄居: '7512',
+  // 野田線（アーバンパークライン）系
+  大宮: '6102',
+  北大宮: '6103',
+  大宮公園: '6104',
+  大和田: '6105',
+  七里: '6106',
+  岩槻: '6107',
+  東岩槻: '6201',
+  豊春: '6202',
+  八木崎: '6203',
+  春日部: '1505',
+  牛島: '6206',
+  藤の牛島: '6206',
+  永沼: '6207',
+  南桜井: '6207',
+  川間: '6208',
+  七光台: '6301',
+  清水公園: '6302',
+  愛宕: '6303',
+  野田町: '6304',
+  野田市: '6304',
+  梅郷: '6305',
+  運河: '6306',
+  江戸川台: '6307',
+  初石: '6308',
+  豊四季: '6309',
+  流山おおたかの森: '6320',
+  柏: '6312',
+  新柏: '6401',
+  増尾: '6402',
+  逆井: '6403',
+  高柳: '6404',
+  六実: '6405',
+  鎌ヶ谷: '6406',
+  新鎌ヶ谷: '6420',
+  馬込沢: '6407',
+  塚田: '6408',
+  新船橋: '6409',
+  船橋: '6412',
+  // 越生線（坂戸は東上線と同一コード）
+  一本松: '8102',
+  西大家: '8103',
+  川角: '8104',
+  武州長瀬: '8106',
+  東毛呂: '8108',
+  武州唐沢: '8109',
+  越生: '8112',
+};
+
 /** 日本語 Wikipedia（記事名は「{駅名}駅」） */
 export function wikipediaJaStationUrl(stationName: string): string {
   return `https://ja.wikipedia.org/wiki/${encodeURIComponent(`${stationName}駅`)}`;
@@ -103,6 +207,12 @@ function seibuOfficialStationUrl(stationName: string): string | null {
   const slug = SEIBU_STATION_SLUGS[stationName];
   if (!slug) return null;
   return `https://www.seiburailway.jp/railway/station/${slug}/`;
+}
+
+function tobuOfficialStationUrl(stationName: string): string | null {
+  const code = TOBU_STATION_CODES[stationName];
+  if (!code) return null;
+  return `https://www.tobu.co.jp/railway/guide/station/info/${code}/`;
 }
 
 export type StationExternalLinks = {
@@ -120,6 +230,9 @@ export function getStationExternalLinks(routeId: RouteId, stationName: string): 
   }
   if (routeId.startsWith('seibu')) {
     return { wikipediaUrl, officialUrl: seibuOfficialStationUrl(stationName) };
+  }
+  if (routeId.startsWith('tobu') || routeId === 'tojo') {
+    return { wikipediaUrl, officialUrl: tobuOfficialStationUrl(stationName) };
   }
   return { wikipediaUrl, officialUrl: null };
 }
